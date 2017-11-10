@@ -1,2 +1,2 @@
 # windnode_kwum
-Regionalkraftwerk Uckermark
+Simulation des Regionalkraftwerks Uckermark im Projekt WindNODE
