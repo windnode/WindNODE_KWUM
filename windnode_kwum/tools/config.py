@@ -26,8 +26,6 @@ __author__     = "nesnoj"
 
 
 import os
-from glob import glob
-import shutil
 import windnode_kwum
 import logging
 
@@ -52,16 +50,12 @@ except:
 
 
 def load_config(filename):
-    config_dir = get('user_dirs', 'config_dir')
-    config_file = os.path.join(extend_root_path(config_dir), filename)
+    config_file = os.path.join(package_path, get('system_dirs', 'config_dir'), filename)
 
     # config file does not exist -> copy default
     if not os.path.isfile(config_file):
-        logger.info('Config file {} not found, I will create a default version'
-                    .format(config_file))
-        shutil.copy(os.path.join(os.path.join(package_path, 'config'),
-                                 filename.replace('.cfg', '_default.cfg')),
-                    config_file)
+        logger.exception('Config file {} not found.'
+                         .format(config_file))
 
     cfg.read(config_file)
     global _loaded
@@ -93,42 +87,22 @@ def get(section, key):
                 return cfg.get(section, key)
 
 
-def get_root_path():
-    """Returns the basic windnode_kwum path and creates it if necessary.
-    """
+def create_data_dirtree():
+    """Create data root path, if necessary"""
     root_dir = get('user_dirs', 'root_dir')
-    root_path = os.path.join(os.path.expanduser('~'), root_dir)
+    root_path = os.path.join(package_path, '../..' , root_dir)
 
     # root dir does not exist
     if not os.path.isdir(root_path):
         # create it
-        logger.info('WindNODE_KWUM root path {} not found, I will create it.'
+        logger.warning('WindNODE_KWUM data root path {} not found, I will create it including subdirectories.'
                     .format(root_path))
         os.mkdir(root_path)
 
-        # copy default config files
-        config_dir = get('user_dirs', 'config_dir')
-        config_path = extend_root_path(config_dir)
-        logger.info('I will create a default set of config files in {}'
-                    .format(config_path))
-        internal_config_dir = os.path.join(package_path, 'config')
-        for file in glob(os.path.join(internal_config_dir, '*.cfg')):
-            shutil.copy(file,
-                        os.path.join(config_path,
-                                     os.path.basename(file)
-                                     .replace('_default', '')))
+        # create subdirs
+        subdirs = ['log_dir', 'data_dir', 'results_dir']
+        for subdir in subdirs:
+            path = os.path.join(root_path, get('user_dirs', subdir))
+            os.mkdir(path)
 
-
-    return root_path
-
-
-def extend_root_path(subdir):
-    """Returns a path based on the basic windnode_kwum path and creates
-    it if necessary. The subfolder is the name of the path extension.
-    """
-    extended_path = os.path.join(get_root_path(), subdir)
-    if not os.path.isdir(extended_path):
-        os.mkdir(extended_path)
-        logger.info('Path {} not found, I will create it.'
-                    .format(extended_path))
-    return extended_path
+create_data_dirtree()
