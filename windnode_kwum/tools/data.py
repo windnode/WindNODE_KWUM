@@ -1,4 +1,4 @@
-from windnode_abw.tools import config
+from windnode_kwum.tools import config
 import requests
 import pandas as pd
 import logging
