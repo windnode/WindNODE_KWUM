@@ -36,14 +36,12 @@ data_RE = pd.read_csv(filename_RE, sep=",")
 filename_prices = os.path.join(package_path, 'data', 'spotprices2015.csv')
 data_spotprices = pd.read_csv(filename_prices, sep=",")
 
-data_throttle = np.random.randint(2, size=8760)
+data_throttle = np.random.random(8760)
 
 # Create buses and flow
 b_el = solph.Bus(label='electricity')
 b_th = solph.Bus(Label='th')
 b_gas = solph.Bus(Label='gas')
-
-flow = solph.Flow()
 
 # Create fixed source object representing wind power plants
 solph.Source(
@@ -77,16 +75,16 @@ solph.LinearTransformer(
 #         label='P2G', inputs={b_el: solph.Flow(nominal_value=1000)}
 #         )
 
-# Create sink for throttled electricity
+# Create sink for excess electricity
 solph.Sink(
-        label='throttled el', inputs={b_el: solph.Flow()}
+        label='excess_el', inputs={b_el: solph.Flow()}
         )
 
 # Create Market
 solph.Sink(
-        label='spot market', inputs={b_el: solph.Flow(
-                variable_costs=data_spotprices['DA_spotmarket_prices'],
-                fixed=True, nominal_value=1000000000000000,
+        label='spot_market', inputs={b_el: solph.Flow(
+                variable_costs=-data_spotprices['DA_spotmarket_prices'],
+                nominal_value=1000000000000000,
                 max=data_throttle
                 )})
 
