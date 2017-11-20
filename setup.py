@@ -36,7 +36,8 @@ setup(
         #'shapely >= 1.5.12, <= 1.5.12',
         'pandas >=0.20.3',
         #'pypsa >=0.10.0, <=0.10.0',
-        'pyproj >= 1.9.5.1'
+        'pyproj >=1.9.5.1',
+        'requests >=2.18.4'
         #'geopy >= 1.11.0, <= 1.11.0'
     ],
     # package_data={
