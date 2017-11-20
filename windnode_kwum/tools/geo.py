@@ -1,8 +1,8 @@
 import pyproj
 from functools import partial
-from windnode_abw.tools import config
+from windnode_kwum.tools import config
 import logging
-logger = logging.getLogger('edisgo')
+logger = logging.getLogger('windnode_kwum')
 
 
 def proj2equidistant():
