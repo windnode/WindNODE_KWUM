@@ -1,0 +1,22 @@
+# This file is part of WindNODE_KWUM, a regional simulation model.
+#
+# WindNODE_KWUM lives at github: https://github.com/windnode/WindNODE_KWUM/
+#
+# CAUTION: This is an internal config file, do not modify unless you know what
+# you are doing!
+
+[user_dirs]
+
+root_dir = .windnode_kwum
+config_dir = config
+data_dir = data
+log_dir = log
+output_dir = output
+
+[system_dirs]
+
+equipment_dir = equipment
+
+[equipment]
+
+# more data ...
