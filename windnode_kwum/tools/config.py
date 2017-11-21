@@ -87,10 +87,17 @@ def get(section, key):
                 return cfg.get(section, key)
 
 
-def create_data_dirtree():
-    """Create data root path, if necessary"""
+def get_data_root_dir():
+    """Get root dir of data which is located in parent directory of package directory"""
     root_dir = get('user_dirs', 'root_dir')
     root_path = os.path.join(package_path, '../..' , root_dir)
+
+    return root_path
+
+
+def create_data_dirtree():
+    """Create data root path, if necessary"""
+    root_path = get_data_root_dir()
 
     # root dir does not exist
     if not os.path.isdir(root_path):
