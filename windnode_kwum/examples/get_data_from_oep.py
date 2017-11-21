@@ -1,10 +1,6 @@
-import logging
-logging.basicConfig(filename='example.log',
-                    format='%(asctime)s %(message)s',
-                    datefmt='%m/%d/%Y %I:%M:%S %p',
-                    level=logging.DEBUG)
-logger = logging.getLogger('windnode_kwum')
-logger.setLevel(logging.DEBUG)
+# define and setup logger
+from windnode_kwum.tools.logger import setup_logger
+logger = setup_logger()
 
 # load configs
 from windnode_kwum.tools import config
