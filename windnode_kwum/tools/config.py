@@ -52,7 +52,7 @@ except:
 def load_config(filename):
     config_file = os.path.join(package_path, get('system_dirs', 'config_dir'), filename)
 
-    # config file does not exist -> copy default
+    # config file does not exist
     if not os.path.isfile(config_file):
         logger.exception('Config file {} not found.'
                          .format(config_file))
