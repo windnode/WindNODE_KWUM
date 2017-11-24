@@ -1,4 +1,5 @@
 from windnode_kwum.tools import config
+import os
 import requests
 import pandas as pd
 import logging
@@ -62,3 +63,39 @@ def oep_get_data(schema, table, columns=[], conditions=[], order=''):
         logger.exception('Something went wrong during data retrieval from OEP: ')
 
     return pd.DataFrame(result.json())
+
+
+def oemof_nodes_from_excel(filename):
+    """
+
+    Parameters
+    ----------
+    filename : :obj:`str`
+        Path to excel file
+
+    Returns
+    -------
+    :obj:`dict`
+        Imported nodes data
+    """
+    # excel file does not exist
+    if not filename or not os.path.isfile(filename):
+        logger.exception('Excel data file {} not found.'
+                         .format(filename))
+
+    xls = pd.ExcelFile(filename)
+
+    nodes_data = {'buses': xls.parse('buses'),
+                  'commodity_sources': xls.parse('commodity_sources'),
+                  'transformers': xls.parse('transformers'),
+                  'renewables': xls.parse('renewables'),
+                  'demand': xls.parse('demand'),
+                  'storages': xls.parse('storages'),
+                  'powerlines': xls.parse('powerlines'),
+                  'timeseries': xls.parse('time_series')
+                  }
+
+    logger.info('Data from Excel file {} imported.'
+                .format(filename))
+
+    return nodes_data
