@@ -65,7 +65,7 @@ def oep_get_data(schema, table, columns=[], conditions=[], order=''):
     return pd.DataFrame(result.json())
 
 
-def oemof_nodes_from_excel(filename):
+def oemof_nodes_from_excel(filename, header_lines=0):
     """
 
     Parameters
@@ -85,14 +85,14 @@ def oemof_nodes_from_excel(filename):
 
     xls = pd.ExcelFile(filename)
 
-    nodes_data = {'buses': xls.parse('buses'),
-                  'commodity_sources': xls.parse('commodity_sources'),
-                  'transformers': xls.parse('transformers'),
-                  'renewables': xls.parse('renewables'),
-                  'demand': xls.parse('demand'),
-                  'storages': xls.parse('storages'),
-                  'powerlines': xls.parse('powerlines'),
-                  'timeseries': xls.parse('time_series')
+    nodes_data = {'buses': xls.parse('buses', header=header_lines),
+                  'commodity_sources': xls.parse('commodity_sources', header=header_lines),
+                  'transformers': xls.parse('transformers', header=header_lines),
+                  'renewables': xls.parse('renewables', header=header_lines),
+                  'demand': xls.parse('demand', header=header_lines),
+                  'storages': xls.parse('storages', header=header_lines),
+                  'powerlines': xls.parse('powerlines', header=header_lines),
+                  'timeseries': xls.parse('time_series', header=header_lines)
                   }
 
     logger.info('Data from Excel file {} imported.'
