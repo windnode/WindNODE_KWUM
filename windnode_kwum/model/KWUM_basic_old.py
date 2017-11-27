@@ -40,13 +40,13 @@ data_throttle = np.random.random(8760)
 
 # Create buses and flow
 b_el = solph.Bus(label='electricity')
-b_th = solph.Bus(Label='heat')
-b_gas = solph.Bus(Label='gas')
+b_th = solph.Bus(label='heat')
+b_gas = solph.Bus(label='gas')
 
 # Create fixed source object representing wind power plants
 solph.Source(
         label='wind', outputs={b_el: solph.Flow(
-                fixed=True, actual_value=data_RE['wind'], nominal_value=1000000
+                fixed=True, actual_value=data_RE['wind'], nominal_value=10000000
                 )})
 
 # Create fixed source object representing PV plants
@@ -56,7 +56,7 @@ solph.Source(
                 )})
 
 # Create battery
-solph.Storage(
+solph.components.GenericStorage(
        label='storage_el',
        nominal_capacity=10000000,
        inputs={b_el: solph.Flow()},
@@ -66,7 +66,7 @@ solph.Storage(
        )
 
 # Create P2G
-solph.LinearTransformer(
+solph.Transformer(
         label='P2G',
         inputs={b_el: solph.Flow(nominal_value=1000, variable_costs=100)},
         outputs = {b_gas: solph.Flow()},
@@ -91,19 +91,21 @@ solph.Sink(
                 )})
 
 # Create P2H
-solph.LinearTransformer(
-        label='P2H', inputs={b_el: solph.Flow()}, outputs={b_th: solph.Flow(
-                )}, conversion_factors={b_th: 0.9})
+solph.Transformer(
+        label='P2H',
+        inputs={b_el: solph.Flow(nominal_value=10000, variable_costs=10)},
+        outputs={b_th: solph.Flow()},
+        conversion_factors={b_th: 0.9})
 
 # Create heat sink for heat demand
 solph.Sink(
         label='heat demand', inputs={b_th: solph.Flow(
-                fixed=True, nominal_value=100000, actual_value=data_RE['demand_th'],
+                fixed=True, nominal_value=10000, actual_value=data_RE['demand_th'],
                 variable_costs=-10
                 )})
 
 # Create thermal storage
-solph.Storage(
+solph.components.GenericStorage(
        label='storage_th', nominal_capacity=10000000,
        inputs={b_th: solph.Flow()},
        outputs={b_th: solph.Flow()},
@@ -121,12 +123,16 @@ solph.Storage(
 logging.info('Optimize energy system')
 
 # Create problem
-om = solph.OperationalModel(esys)
+om = solph.Model(esys)
 
 # Set tee to True to get solver output
 om.solve(solver='cbc', solve_kwargs={'tee': True})
 
-results = outputlib.ResultsDataFrame(energy_system=esys)
+#results = outputlib.ResultsDataFrame(energy_system=esys)
+results = outputlib.processing.results(om)
+bus_el = outputlib.views.node(results, 'b_el')
+bus_el['sequences'].plot()
+plt.show()
 
 # PLOT #
 logging.info("Plot results")
