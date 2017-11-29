@@ -33,7 +33,7 @@ package_path = windnode_kwum.__path__[0]
 filename_RE = os.path.join(package_path, 'data', 'example_data.csv')
 data_RE = pd.read_csv(filename_RE, sep=",")
 
-filename_prices = os.path.join(package_path, 'data', 'spotprices2015.csv')
+filename_prices = os.path.join(package_path, 'data_old', 'spotprices2015.csv')
 data_spotprices = pd.read_csv(filename_prices, sep=",")
 
 data_throttle = np.random.random(8760)
