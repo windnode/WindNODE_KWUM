@@ -86,6 +86,7 @@ def oemof_nodes_from_excel(filename, header_lines=0):
     xls = pd.ExcelFile(filename)
 
     nodes_data = {'buses': xls.parse('buses', header=header_lines),
+                  'chp': xls.parse('chp', header=header_lines),
                   'commodity_sources': xls.parse('commodity_sources', header=header_lines),
                   'transformers': xls.parse('transformers', header=header_lines),
                   'renewables': xls.parse('renewables', header=header_lines),
