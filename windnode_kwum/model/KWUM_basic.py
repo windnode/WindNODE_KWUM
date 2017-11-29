@@ -1,7 +1,6 @@
 import logging
 logger = logging.getLogger('windnode_kwum')
 
-# Import OEMOF base classes
 import oemof.solph as solph
 import pandas as pd
 import os
@@ -46,72 +45,73 @@ def create_nodes(nd=None):
 
     # Create Source objects with fixed time series from 'renewables' table
     for i, re in nd['renewables'].iterrows():
-        # set static outflow values
-        outflow_args = {'nominal_value': re['capacity'],
-                        'fixed': True}
-        # get time series for node and parameter
-        for col in nd['timeseries'].columns.values:
-            if col.split('.')[0] == re['label']:
-                outflow_args[col.split('.')[1]] = nd['timeseries'][col]
+        if re['active']:
+            # set static outflow values
+            outflow_args = {'nominal_value': re['capacity'],
+                            'fixed': True}
+            # get time series for node and parameter
+            for col in nd['timeseries'].columns.values:
+                if col.split('.')[0] == re['label']:
+                    outflow_args[col.split('.')[1]] = nd['timeseries'][col]
 
-        # create
-        solph.Source(label=re['label'],
-                     outputs={busd[re['to']]: solph.Flow(**outflow_args)})
+            # create
+            solph.Source(label=re['label'],
+                         outputs={busd[re['to']]: solph.Flow(**outflow_args)})
 
     # Create Sink objects with fixed time series from 'demand' table
     for i, de in nd['demand'].iterrows():
-        # set static inflow values
-        inflow_args = {'nominal_value': de['nominal value'],
-                       'fixed': de['fixed']}
-        # get time series for node and parameter
-        for col in nd['timeseries'].columns.values:
-            if col.split('.')[0] == de['label']:
-                inflow_args[col.split('.')[1]] = nd['timeseries'][col]
+        if de['active']:
+            # set static inflow values
+            inflow_args = {'nominal_value': de['nominal value'],
+                           'fixed': de['fixed']}
+            # get time series for node and parameter
+            for col in nd['timeseries'].columns.values:
+                if col.split('.')[0] == de['label']:
+                    inflow_args[col.split('.')[1]] = nd['timeseries'][col]
 
-        # create
-        solph.Sink(label=de['label'],
-                   inputs={busd[de['from']]: solph.Flow(**inflow_args)})
+            # create
+            solph.Sink(label=de['label'],
+                       inputs={busd[de['from']]: solph.Flow(**inflow_args)})
 
     # Create Transformer objects from 'transformers' table
     for i, t in nd['transformers'].iterrows():
-        solph.Transformer(
-            label=t['label'],
-            inputs={busd[t['from']]: solph.Flow()},
-            outputs={busd[t['to']]: solph.Flow(nominal_value=t['capacity'],
-                                               variable_costs=t['variable costs'],
-                                               min=t['min'],
-                                               max=t['max'],
-                                               fixed_costs=t['fixed costs'])},
-            conversion_factors={busd[t['to']]: t['efficiency']})
+        if t['active']:
+            solph.Transformer(
+                label=t['label'],
+                inputs={busd[t['from']]: solph.Flow()},
+                outputs={busd[t['to']]: solph.Flow(nominal_value=t['capacity'],
+                                                   variable_costs=t['variable costs'],
+                                                   min=t['min'],
+                                                   max=t['max'],
+                                                   fixed_costs=t['fixed costs'])},
+                conversion_factors={busd[t['to']]: t['efficiency']})
 
     for i, s in nd['storages'].iterrows():
-        solph.components.GenericStorage(
-            label=s['label'],
-            # inputs={busd[s['bus']]: solph.Flow(
-            #     nominal_value=s['capacity pump'], max=s['max'])},
-            # outputs={busd[s['bus']]: solph.Flow(
-            #     nominal_value=s['capacity turbine'], max=s['max'])},
-            inputs={busd[s['bus']]: solph.Flow()},
-            outputs={busd[s['bus']]: solph.Flow()},
-            nominal_capacity=s['nominal capacity'],
-            capacity_loss=s['capacity loss'],
-            initial_capacity=s['initial capacity'],
-            capacity_max=s['capacity max'],
-            capacity_min=s['capacity min'],
-            inflow_conversion_factor=s['efficiency inflow'],
-            outflow_conversion_factor=s['efficiency outflow'])
+        if s['active']:
+            solph.components.GenericStorage(
+                label=s['label'],
+                inputs={busd[s['bus']]: solph.Flow()},
+                outputs={busd[s['bus']]: solph.Flow()},
+                nominal_capacity=s['nominal capacity'],
+                capacity_loss=s['capacity loss'],
+                initial_capacity=s['initial capacity'],
+                capacity_max=s['capacity max'],
+                capacity_min=s['capacity min'],
+                inflow_conversion_factor=s['efficiency inflow'],
+                outflow_conversion_factor=s['efficiency outflow'])
 
     for i, p in nd['powerlines'].iterrows():
-        solph.Transformer(
-            label='powerline_' + p['bus_1'] + '_' + p['bus_2'],
-            inputs={busd[p['bus_1']]: solph.Flow()},
-            outputs={busd[p['bus_2']]: solph.Flow(nominal_value=p['capacity'])},
-            conversion_factors={busd[p['bus_2']]: p['efficiency']})
-        solph.Transformer(
-            label='powerline_' + p['bus_2'] + '_' + p['bus_1'],
-            inputs={busd[p['bus_2']]: solph.Flow()},
-            outputs={busd[p['bus_1']]: solph.Flow(nominal_value=p['capacity'])},
-            conversion_factors={busd[p['bus_1']]: p['efficiency']})
+        if p['active']:
+            solph.Transformer(
+                label='powerline_' + p['bus_1'] + '_' + p['bus_2'],
+                inputs={busd[p['bus_1']]: solph.Flow()},
+                outputs={busd[p['bus_2']]: solph.Flow(nominal_value=p['capacity'])},
+                conversion_factors={busd[p['bus_2']]: p['efficiency']})
+            solph.Transformer(
+                label='powerline_' + p['bus_2'] + '_' + p['bus_1'],
+                inputs={busd[p['bus_2']]: solph.Flow()},
+                outputs={busd[p['bus_1']]: solph.Flow(nominal_value=p['capacity'])},
+                conversion_factors={busd[p['bus_1']]: p['efficiency']})
 
 
 def create_model(cfg):
