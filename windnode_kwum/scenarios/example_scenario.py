@@ -34,21 +34,6 @@ def run_scenario(cfg):
         logger.info('The energy system was dumped to {}.'
                     .format(path + file))
 
-    # else:
-    #     esys = solph.EnergySystem()
-    #     esys.restore(dpath=os.path.join(config.get_data_root_dir(),
-    #                                     config.get('user_dirs',
-    #                                                'results_dir')
-    #                                     ),
-    #                  filename='esys_example_scenario.oemof')
-
-
-
-
-
-    # my_results = bus_el['sequences'].sum(axis=0).to_dict()
-    # my_results['storage_invest'] = results[(storage,)]['scalars']['invest']
-
     return esys, results
 
 
@@ -56,11 +41,15 @@ def plot_results(esys, results):
 
     logger.info('Plot results')
 
+    # print graph of energy system
     from oemof.outputlib.graph_tools import graph
     graph(esys)
 
+    # get
     bus_el = esys.groups['bus_el']
     bus_el_results = outputlib.views.node(results, 'bus_el')
+    bus_th_prenzlau_results = outputlib.views.node(results, 'bus_th_prenzlau')
+    bus_th_nechlin_results = outputlib.views.node(results, 'bus_th_nechlin')
 
     print(bus_el_results['sequences'].sum())
     print(bus_el_results['sequences'].info())
@@ -80,6 +69,9 @@ def plot_results(esys, results):
     # ax.set_xlabel('Q (MW)')
     # ax.set_ylabel('P (MW)')
     # plt.show()
+
+    bus_th_prenzlau_results['sequences'].plot(kind='line', drawstyle='steps-post')
+    plt.show()
 
 if __name__ == "__main__":
 
