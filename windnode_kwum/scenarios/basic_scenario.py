@@ -48,6 +48,7 @@ def plot_results(esys, results):
     # get
     bus_el = esys.groups['bus_el']
     bus_el_results = outputlib.views.node(results, 'bus_el')
+    bus_th_results = outputlib.views.node(results, 'bus_th')
     bus_th_prenzlau_results = outputlib.views.node(results, 'bus_th_prenzlau')
     bus_th_nechlin_results = outputlib.views.node(results, 'bus_th_nechlin')
 
@@ -70,7 +71,7 @@ def plot_results(esys, results):
     # ax.set_ylabel('P (MW)')
     # plt.show()
 
-    bus_th_prenzlau_results['sequences'].plot(kind='line', drawstyle='steps-post')
+    bus_th_results['sequences'].plot(kind='line', drawstyle='steps-post')
     plt.show()
 
 if __name__ == "__main__":
