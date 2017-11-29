@@ -7,7 +7,6 @@ import pandas as pd
 import os
 
 from windnode_kwum.tools import config
-config.load_config('config_scenario.cfg')
 
 from windnode_kwum.tools.data import oemof_nodes_from_excel
 
