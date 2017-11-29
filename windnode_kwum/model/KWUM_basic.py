@@ -10,13 +10,15 @@ from windnode_kwum.tools import config
 from windnode_kwum.tools.data import oemof_nodes_from_excel
 
 
-def create_nodes(nd=None):
+def create_nodes(nd=None, datetime_index = list()):
     """
 
     Parameters
     ----------
     nd : :obj:`dict`
         Nodes data
+    datetime_index :
+        Datetime index
     """
 
     if not nd:
@@ -113,6 +115,30 @@ def create_nodes(nd=None):
                 outputs={busd[p['bus_1']]: solph.Flow(nominal_value=p['capacity'])},
                 conversion_factors={busd[p['bus_1']]: p['efficiency']})
 
+    for i, c in nd['chp'].iterrows():
+        if c['active']:
+
+            if len(datetime_index) == 0:
+                logger.exception('No datetime index provided (needed for CHP).')
+
+            # TODO: Simple example, revise used values (copied from oemof example file)
+            # TODO: Add time series to scenario if needed
+            periods = len(datetime_index)
+            solph.components.GenericCHP(label=c['label'],
+                                        fuel_input={busd[c['from']]: solph.Flow(
+                                            H_L_FG_share_max=[0.18 for p in range(0, periods)],
+                                            H_L_FG_share_min=[0.41 for p in range(0, periods)])},
+                                        electrical_output={busd[c['to_el']]: solph.Flow(
+                                            P_max_woDH=[200 for p in range(0, periods)],
+                                            P_min_woDH=[100 for p in range(0, periods)],
+                                            Eta_el_max_woDH=[0.44 for p in range(0, periods)],
+                                            Eta_el_min_woDH=[0.40 for p in range(0, periods)])},
+                                        heat_output={busd[c['to_th']]: solph.Flow(
+                                            Q_CW_min=[0 for p in range(0, periods)])},
+                                        Beta=[0 for p in range(0, periods)],
+                                        fixed_costs=c['fixed costs'],
+                                        back_pressure=c['back_pressure'])
+
 
 def create_model(cfg):
 
@@ -125,11 +151,10 @@ def create_model(cfg):
     # Set up energy system
     esys = solph.EnergySystem(timeindex=datetime_index)
 
-    create_nodes(
-        oemof_nodes_from_excel(
-            filename=os.path.join(cfg['data_path'],
-                                  cfg['scenario_file'])
-        )
+    create_nodes(nd=oemof_nodes_from_excel(filename=os.path.join(cfg['data_path'],
+                                                                 cfg['scenario_file']),
+                                           ),
+                 datetime_index=datetime_index
     )
 
     print('The following objects has been created from Excel file:')
