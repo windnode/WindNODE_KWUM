@@ -1,31 +1,3 @@
-# import os
-# import logging
-# from oemof.tools import logger
-# from windnode_kwum.tools import config
-#
-#
-# def setup_logger(log_dir=None, loglevel=logging.DEBUG):
-#     """
-#     Instantiate logger
-#
-#     Parameters
-#     ----------
-#     log_dir : str
-#         Directory to save log, default: <package_dir>/../../logs/
-#     loglevel : ?
-#         Loglevel
-#
-#     Returns
-#     -------
-#     instance of logger
-#     """
-#
-#     if log_dir is None:
-#         log_dir = os.path.join(config.get_data_root_dir(), config.get('user_dirs', 'log_dir'))
-#
-#     logger.define_logging(basicpath=log_dir)
-
-
 import os
 import logging
 import logging.config
