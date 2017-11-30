@@ -19,6 +19,10 @@ def create_nodes(nd=None, datetime_index = list()):
         Nodes data
     datetime_index :
         Datetime index
+
+    Returns
+    -------
+    nodes : `obj`:dict of :class:`nodes <oemof.network.Node>`
     """
 
     if not nd:
@@ -28,22 +32,33 @@ def create_nodes(nd=None, datetime_index = list()):
     # ts = {col: dict([tuple(col.split('.'))])
     #       for col in nd['timeseries'].columns.values}
 
+    nodes = []
+
     # Create Bus objects from buses table
     busd = {}
     for i, b in nd['buses'].iterrows():
-        busd[b['label']] = solph.Bus(label=b['label'])
+        bus = solph.Bus(label=b['label'])
+        nodes.append(bus)
+
+        busd[b['label']] = bus
         if b['excess']:
-            solph.Sink(label=b['label'] + '_excess',
-                       inputs={busd[b['label']]: solph.Flow()})
+            nodes.append(
+                solph.Sink(label=b['label'] + '_excess',
+                           inputs={busd[b['label']]: solph.Flow()})
+            )
         if b['shortage']:
-            solph.Source(label=b['label'] + '_shortage',
-                         outputs={busd[b['label']]: solph.Flow(
-                             variable_costs=b['shortage costs'])})
+            nodes.append(
+                solph.Source(label=b['label'] + '_shortage',
+                             outputs={busd[b['label']]: solph.Flow(
+                                 variable_costs=b['shortage costs'])})
+            )
 
     # Create Source objects from table 'commodity sources'
     for i, cs in nd['commodity_sources'].iterrows():
-        solph.Source(label=cs['label'], outputs={busd[cs['to']]: solph.Flow(
-            variable_costs=cs['variable costs'])})
+        nodes.append(
+            solph.Source(label=cs['label'], outputs={busd[cs['to']]: solph.Flow(
+                variable_costs=cs['variable costs'])})
+        )
 
     # Create Source objects with fixed time series from 'renewables' table
     for i, re in nd['renewables'].iterrows():
@@ -57,8 +72,10 @@ def create_nodes(nd=None, datetime_index = list()):
                     outflow_args[col.split('.')[1]] = nd['timeseries'][col]
 
             # create
-            solph.Source(label=re['label'],
-                         outputs={busd[re['to']]: solph.Flow(**outflow_args)})
+            nodes.append(
+                solph.Source(label=re['label'],
+                             outputs={busd[re['to']]: solph.Flow(**outflow_args)})
+            )
 
     # Create Sink objects with fixed time series from 'demand' table
     for i, de in nd['demand'].iterrows():
@@ -72,48 +89,58 @@ def create_nodes(nd=None, datetime_index = list()):
                     inflow_args[col.split('.')[1]] = nd['timeseries'][col]
 
             # create
-            solph.Sink(label=de['label'],
-                       inputs={busd[de['from']]: solph.Flow(**inflow_args)})
+            nodes.append(
+                solph.Sink(label=de['label'],
+                           inputs={busd[de['from']]: solph.Flow(**inflow_args)})
+            )
 
     # Create Transformer objects from 'transformers' table
     for i, t in nd['transformers'].iterrows():
         if t['active']:
-            solph.Transformer(
-                label=t['label'],
-                inputs={busd[t['from']]: solph.Flow()},
-                outputs={busd[t['to']]: solph.Flow(nominal_value=t['capacity'],
-                                                   variable_costs=t['variable costs'],
-                                                   min=t['min'],
-                                                   max=t['max'],
-                                                   fixed_costs=t['fixed costs'])},
-                conversion_factors={busd[t['to']]: t['efficiency']})
+            nodes.append(
+                solph.Transformer(
+                    label=t['label'],
+                    inputs={busd[t['from']]: solph.Flow()},
+                    outputs={busd[t['to']]: solph.Flow(nominal_value=t['capacity'],
+                                                       variable_costs=t['variable costs'],
+                                                       min=t['min'],
+                                                       max=t['max'],
+                                                       fixed_costs=t['fixed costs'])},
+                    conversion_factors={busd[t['to']]: t['efficiency']})
+            )
 
     for i, s in nd['storages'].iterrows():
         if s['active']:
-            solph.components.GenericStorage(
-                label=s['label'],
-                inputs={busd[s['bus']]: solph.Flow()},
-                outputs={busd[s['bus']]: solph.Flow()},
-                nominal_capacity=s['nominal capacity'],
-                capacity_loss=s['capacity loss'],
-                initial_capacity=s['initial capacity'],
-                capacity_max=s['capacity max'],
-                capacity_min=s['capacity min'],
-                inflow_conversion_factor=s['efficiency inflow'],
-                outflow_conversion_factor=s['efficiency outflow'])
+            nodes.append(
+                solph.components.GenericStorage(
+                    label=s['label'],
+                    inputs={busd[s['bus']]: solph.Flow()},
+                    outputs={busd[s['bus']]: solph.Flow()},
+                    nominal_capacity=s['nominal capacity'],
+                    capacity_loss=s['capacity loss'],
+                    initial_capacity=s['initial capacity'],
+                    capacity_max=s['capacity max'],
+                    capacity_min=s['capacity min'],
+                    inflow_conversion_factor=s['efficiency inflow'],
+                    outflow_conversion_factor=s['efficiency outflow'])
+            )
 
     for i, p in nd['powerlines'].iterrows():
         if p['active']:
-            solph.Transformer(
-                label='powerline_' + p['bus_1'] + '_' + p['bus_2'],
-                inputs={busd[p['bus_1']]: solph.Flow()},
-                outputs={busd[p['bus_2']]: solph.Flow(nominal_value=p['capacity'])},
-                conversion_factors={busd[p['bus_2']]: p['efficiency']})
-            solph.Transformer(
-                label='powerline_' + p['bus_2'] + '_' + p['bus_1'],
-                inputs={busd[p['bus_2']]: solph.Flow()},
-                outputs={busd[p['bus_1']]: solph.Flow(nominal_value=p['capacity'])},
-                conversion_factors={busd[p['bus_1']]: p['efficiency']})
+            nodes.append(
+                solph.Transformer(
+                    label='powerline_' + p['bus_1'] + '_' + p['bus_2'],
+                    inputs={busd[p['bus_1']]: solph.Flow()},
+                    outputs={busd[p['bus_2']]: solph.Flow(nominal_value=p['capacity'])},
+                    conversion_factors={busd[p['bus_2']]: p['efficiency']})
+            )
+            nodes.append(
+                solph.Transformer(
+                    label='powerline_' + p['bus_2'] + '_' + p['bus_1'],
+                    inputs={busd[p['bus_2']]: solph.Flow()},
+                    outputs={busd[p['bus_1']]: solph.Flow(nominal_value=p['capacity'])},
+                    conversion_factors={busd[p['bus_1']]: p['efficiency']})
+            )
 
     for i, c in nd['chp'].iterrows():
         if c['active']:
@@ -124,20 +151,24 @@ def create_nodes(nd=None, datetime_index = list()):
             # TODO: Simple example, revise used values (copied from oemof example file)
             # TODO: Add time series to scenario if needed
             periods = len(datetime_index)
-            solph.components.GenericCHP(label=c['label'],
-                                        fuel_input={busd[c['from']]: solph.Flow(
-                                            H_L_FG_share_max=[0.18 for p in range(0, periods)],
-                                            H_L_FG_share_min=[0.41 for p in range(0, periods)])},
-                                        electrical_output={busd[c['to_el']]: solph.Flow(
-                                            P_max_woDH=[200 for p in range(0, periods)],
-                                            P_min_woDH=[100 for p in range(0, periods)],
-                                            Eta_el_max_woDH=[0.44 for p in range(0, periods)],
-                                            Eta_el_min_woDH=[0.40 for p in range(0, periods)])},
-                                        heat_output={busd[c['to_th']]: solph.Flow(
-                                            Q_CW_min=[0 for p in range(0, periods)])},
-                                        Beta=[0 for p in range(0, periods)],
-                                        fixed_costs=c['fixed costs'],
-                                        back_pressure=c['back_pressure'])
+            nodes.append(
+                solph.components.GenericCHP(label=c['label'],
+                                            fuel_input={busd[c['from']]: solph.Flow(
+                                                H_L_FG_share_max=[0.18 for p in range(0, periods)],
+                                                H_L_FG_share_min=[0.41 for p in range(0, periods)])},
+                                            electrical_output={busd[c['to_el']]: solph.Flow(
+                                                P_max_woDH=[200 for p in range(0, periods)],
+                                                P_min_woDH=[100 for p in range(0, periods)],
+                                                Eta_el_max_woDH=[0.44 for p in range(0, periods)],
+                                                Eta_el_min_woDH=[0.40 for p in range(0, periods)])},
+                                            heat_output={busd[c['to_th']]: solph.Flow(
+                                                Q_CW_min=[0 for p in range(0, periods)])},
+                                            Beta=[0 for p in range(0, periods)],
+                                            fixed_costs=c['fixed costs'],
+                                            back_pressure=c['back_pressure'])
+            )
+
+    return nodes
 
 
 def create_model(cfg):
@@ -151,11 +182,15 @@ def create_model(cfg):
     # Set up energy system
     esys = solph.EnergySystem(timeindex=datetime_index)
 
-    create_nodes(nd=oemof_nodes_from_excel(filename=os.path.join(cfg['data_path'],
-                                                                 cfg['scenario_file']),
-                                           ),
-                 datetime_index=datetime_index
+    nodes = create_nodes(
+        nd=oemof_nodes_from_excel(
+            filename=os.path.join(cfg['data_path'],
+                                  cfg['scenario_file']),
+        ),
+        datetime_index=datetime_index
     )
+
+    esys.add(*nodes)
 
     print('The following objects has been created from Excel file:')
     for n in esys.nodes:
