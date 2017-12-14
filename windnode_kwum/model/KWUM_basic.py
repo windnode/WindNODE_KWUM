@@ -36,29 +36,34 @@ def create_nodes(nd=None, datetime_index = list()):
 
     # Create Bus objects from buses table
     busd = {}
-    for i, b in nd['buses'].iterrows():
-        bus = solph.Bus(label=b['label'])
-        nodes.append(bus)
 
-        busd[b['label']] = bus
-        if b['excess']:
-            nodes.append(
-                solph.Sink(label=b['label'] + '_excess',
-                           inputs={busd[b['label']]: solph.Flow()})
-            )
-        if b['shortage']:
-            nodes.append(
-                solph.Source(label=b['label'] + '_shortage',
-                             outputs={busd[b['label']]: solph.Flow(
-                                 variable_costs=b['shortage costs'])})
-            )
+    for i, b in nd['buses'].iterrows():
+        if b['active']:
+            bus = solph.Bus(label=b['label'])
+            nodes.append(bus)
+
+            busd[b['label']] = bus
+            if b['excess']:
+                nodes.append(
+                    solph.Sink(label=b['label'] + '_excess',
+                               inputs={busd[b['label']]: solph.Flow(
+                                   variable_costs=b['excess costs'])})
+                )
+            if b['shortage']:
+                nodes.append(
+                    solph.Source(label=b['label'] + '_shortage',
+                                 outputs={busd[b['label']]: solph.Flow(
+                                     variable_costs=b['shortage costs'])})
+                    )
 
     # Create Source objects from table 'commodity sources'
     for i, cs in nd['commodity_sources'].iterrows():
-        nodes.append(
-            solph.Source(label=cs['label'], outputs={busd[cs['to']]: solph.Flow(
-                variable_costs=cs['variable costs'])})
-        )
+        if cs['active']:
+            nodes.append(
+                solph.Source(label=cs['label'],
+                             outputs={busd[cs['to']]: solph.Flow(
+                                 variable_costs=cs['variable costs'])})
+                        )
 
     # Create Source objects with fixed time series from 'renewables' table
     for i, re in nd['renewables'].iterrows():
@@ -97,15 +102,20 @@ def create_nodes(nd=None, datetime_index = list()):
     # Create Transformer objects from 'transformers' table
     for i, t in nd['transformers'].iterrows():
         if t['active']:
+            # set static inflow values
+            inflow_args = {'variable_costs': t['variable input costs'],
+                           'nominal_value': t['max nom input']}
+            # get time series for inflow of transformer
+            for col in nd['timeseries'].columns.values:
+                if col.split('.')[0] == t['label']:
+                    inflow_args[col.split('.')[1]] = nd['timeseries'][col]
+            # create
             nodes.append(
                 solph.Transformer(
                     label=t['label'],
-                    inputs={busd[t['from']]: solph.Flow()},
-                    outputs={busd[t['to']]: solph.Flow(nominal_value=t['capacity'],
-                                                       variable_costs=t['variable costs'],
-                                                       min=t['min'],
-                                                       max=t['max'],
-                                                       fixed_costs=t['fixed costs'])},
+                    inputs={busd[t['from']]: solph.Flow(**inflow_args)},
+                    outputs={busd[t['to']]: solph.Flow(
+                            nominal_value=t['capacity'])},
                     conversion_factors={busd[t['to']]: t['efficiency']})
             )
 
@@ -114,8 +124,10 @@ def create_nodes(nd=None, datetime_index = list()):
             nodes.append(
                 solph.components.GenericStorage(
                     label=s['label'],
-                    inputs={busd[s['bus']]: solph.Flow()},
-                    outputs={busd[s['bus']]: solph.Flow()},
+                    inputs={busd[s['bus']]: solph.Flow(
+                            variable_costs=s['input costs'])},
+                    outputs={busd[s['bus']]: solph.Flow(
+                            variable_costs=s['output costs'])},
                     nominal_capacity=s['nominal capacity'],
                     capacity_loss=s['capacity loss'],
                     initial_capacity=s['initial capacity'],
