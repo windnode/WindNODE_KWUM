@@ -1,9 +1,10 @@
+import logging
+logger = logging.getLogger('windnode_kwum')
 from windnode_kwum.tools import config
+
 import os
 import requests
 import pandas as pd
-import logging
-logger = logging.getLogger('windnode_kwum')
 
 
 def oep_get_data(schema, table, columns=[], conditions=[], order=''):
