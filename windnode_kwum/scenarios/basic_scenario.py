@@ -9,7 +9,6 @@ config.load_config('config_data.cfg')
 config.load_config('config_misc.cfg')
 
 # import oemof modules
-import oemof.solph as solph
 from oemof import outputlib
 
 import matplotlib.pyplot as plt
@@ -43,7 +42,7 @@ def plot_results(esys, results):
 
     # print graph of energy system
     from oemof.outputlib.graph_tools import graph
-    graph(esys)
+    graph(esys, node_size=1000)
 
     # get
     bus_el = esys.groups['bus_el']
