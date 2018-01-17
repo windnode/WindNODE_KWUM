@@ -8,6 +8,7 @@ import os
 from windnode_kwum.tools import config
 
 from windnode_kwum.tools.data import oemof_nodes_from_excel
+from windnode_kwum.tools.config import get_data_root_dir
 
 
 def create_nodes(nd=None, datetime_index = list()):
@@ -196,8 +197,11 @@ def create_model(cfg):
 
     nodes = create_nodes(
         nd=oemof_nodes_from_excel(
-            filename=os.path.join(cfg['data_path'],
-                                  cfg['scenario_file']),
+            scenario_file=os.path.join(cfg['data_path'],
+                                       cfg['scenario_file']),
+            data_file=os.path.join(get_data_root_dir(),
+                                   config.get('user_dirs', 'data_dir'),
+                                   cfg['data_file']),
         ),
         datetime_index=datetime_index
     )

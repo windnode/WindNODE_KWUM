@@ -79,9 +79,10 @@ if __name__ == "__main__":
     cfg = {
         'data_path': os.path.join(os.path.dirname(__file__), 'data'),
         'date_from': '2016-01-01 00:00:00',
-        'date_to': '2016-12-31 23:00:00',
+        'date_to': '2016-01-15 23:00:00',
         'freq': '60min',
         'scenario_file': 'basic_scenario.xlsx',
+        'data_file': 'basic_scenario_data.xlsx',
         'results_path': os.path.join(config.get_data_root_dir(),
                                      config.get('user_dirs',
                                                 'results_dir')),
