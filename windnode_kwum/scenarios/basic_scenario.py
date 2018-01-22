@@ -3,7 +3,7 @@ from windnode_kwum.tools.logger import setup_logger
 logger = setup_logger()
 
 import os
-from windnode_kwum.models.KWUM_basic import create_model, simulate
+from windnode_kwum.models.basic_model import create_model, simulate
 from windnode_kwum.tools import config
 config.load_config('config_data.cfg')
 config.load_config('config_misc.cfg')
