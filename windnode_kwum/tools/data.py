@@ -69,7 +69,7 @@ def oep_get_data(schema, table, columns=[], conditions=[], order=''):
 def oemof_nodes_from_excel(scenario_file,
                            data_file,
                            header_lines=0):
-    """
+    """Import scenario data from Excel file
 
     Parameters
     ----------
@@ -77,6 +77,8 @@ def oemof_nodes_from_excel(scenario_file,
         Path to scenario Excel file
     data_file : :obj:`str`
         Path to data Excel file
+    header_lines : :obj:`int`
+        Header lines in Excel file to be skipped
 
     Returns
     -------

@@ -15,6 +15,19 @@ import matplotlib.pyplot as plt
 
 
 def run_scenario(cfg):
+    """Run scenario
+
+    Parameters
+    ----------
+    cfg : :obj:`dict`
+        Config to be used to create model
+
+    Returns
+    -------
+    oemof.solph.EnergySystem
+    :obj:`dict`
+        Results of simulation
+    """
 
     esys = create_model(cfg=cfg)
 
@@ -37,6 +50,14 @@ def run_scenario(cfg):
 
 
 def plot_results(esys, results):
+    """Plots results of simulation
+
+    Parameters
+    ----------
+    esys : oemof.solph.EnergySystem
+    results : :obj:`dict`
+        Results of simulation
+    """
 
     logger.info('Plot results')
 

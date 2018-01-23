@@ -13,7 +13,7 @@ from windnode_kwum.tools.config import get_data_root_dir
 
 
 def create_nodes(nd=None, datetime_index = list()):
-    """
+    """Create nodes (oemof objects) from node dict
 
     Parameters
     ----------
@@ -190,6 +190,18 @@ def create_nodes(nd=None, datetime_index = list()):
 
 
 def create_model(cfg):
+    """Create oemof model using config and data files. An oemof energy system is created,
+    nodes are added and parametrized.
+
+    Parameters
+    ----------
+    cfg : :obj:`dict`
+        Config to be used to create model
+
+    Returns
+    -------
+    oemof.solph.EnergySystem
+    """
 
     logger.info('Create energy system')
     # Create time index
