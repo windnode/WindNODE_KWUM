@@ -28,7 +28,9 @@ def create_nodes(nd=None, datetime_index = list()):
     """
 
     if not nd:
-        logger.exception('No nodes data provided.')
+        msg = 'No nodes data provided.'
+        logger.error(msg)
+        raise ValueError(msg)
 
     # # build dict nodes and parameters from column names
     # ts = {col: dict([tuple(col.split('.'))])
@@ -160,7 +162,9 @@ def create_nodes(nd=None, datetime_index = list()):
         if c['active']:
 
             if len(datetime_index) == 0:
-                logger.exception('No datetime index provided (needed for CHP).')
+                msg = 'No datetime index provided (needed for CHP).'
+                logger.error(msg)
+                raise ValueError(msg)
 
             # TODO: Simple example, revise used values (copied from oemof example file)
             # TODO: Add time series to scenario if needed

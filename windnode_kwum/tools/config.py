@@ -54,8 +54,9 @@ def load_config(filename):
 
     # config file does not exist
     if not os.path.isfile(config_file):
-        logger.exception('Config file {} not found.'
-                         .format(config_file))
+        msg = 'Config file {} not found.'.format(config_file)
+        logger.error(msg)
+        raise FileNotFoundError(msg)
 
     cfg.read(config_file)
     global _loaded
