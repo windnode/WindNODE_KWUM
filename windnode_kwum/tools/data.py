@@ -106,17 +106,27 @@ def oemof_nodes_from_excel(scenario_file,
                   'timeseries': xls_s.parse('time_series', header=header_lines)
                   }
 
+    # set datetime index
+    nodes_data['timeseries'].set_index('timestamp', inplace=True)
+    nodes_data['timeseries'].index = pd.to_datetime(nodes_data['timeseries'].index)
+
     # read further (non-public) data from data file
     timeseries_d = xls_d.parse('time_series', header=header_lines)
+    timeseries_d.set_index('timestamp', inplace=True)
+    timeseries_d.index = pd.to_datetime(timeseries_d.index)
 
     # join datasets
     # ONLY JOIN OF TIMESERIES IS IMPLEMENTED RIGHT NOW
-    if len(nodes_data['timeseries']) != len(timeseries_d):
-        logger.warning('Lengths of timeseries from data file do not match! '
-                       'Timeseries from {} skipped.'
-                       .format(data_file))
+    if not nodes_data['timeseries'].index.equals(timeseries_d.index):
+        msg = 'Timesteps of timeseries from scenario file and data file do not match!'
+        logger.error(msg)
+        raise ValueError(msg)
     else:
-        nodes_data['timeseries'] = nodes_data['timeseries'].join(timeseries_d)
+        nodes_data['timeseries'] = pd.merge(nodes_data['timeseries'],
+                                            timeseries_d,
+                                            how='left',
+                                            right_index=True,
+                                            left_index=True)
 
     logger.info('Data from Excel file {} imported.'
                 .format(scenario_file))

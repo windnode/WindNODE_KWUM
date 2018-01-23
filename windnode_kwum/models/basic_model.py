@@ -4,6 +4,7 @@ logger = logging.getLogger('windnode_kwum')
 import oemof.solph as solph
 import pandas as pd
 import os
+from dateutil.parser import parse
 
 from windnode_kwum.tools import config
 
@@ -195,14 +196,23 @@ def create_model(cfg):
     # Set up energy system
     esys = solph.EnergySystem(timeindex=datetime_index)
 
+    # read nodes data
+    nd = oemof_nodes_from_excel(
+        scenario_file=os.path.join(cfg['data_path'],
+                                   cfg['scenario_file']),
+        data_file=os.path.join(get_data_root_dir(),
+                               config.get('user_dirs', 'data_dir'),
+                               cfg['data_file'])
+        )
+
+    # check if selected timerange in cfg is part of data's timerange
+    if any([parse(_) not in nd['timeseries'].index for _ in [cfg['date_from'], cfg['date_to']]]):
+        msg = 'Selected timerange is not included in data\'s timerange!'
+        logger.error(msg)
+        raise ValueError(msg)
+
     nodes = create_nodes(
-        nd=oemof_nodes_from_excel(
-            scenario_file=os.path.join(cfg['data_path'],
-                                       cfg['scenario_file']),
-            data_file=os.path.join(get_data_root_dir(),
-                                   config.get('user_dirs', 'data_dir'),
-                                   cfg['data_file']),
-        ),
+        nd=nd,
         datetime_index=datetime_index
     )
 
