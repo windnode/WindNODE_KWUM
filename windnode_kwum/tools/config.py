@@ -91,7 +91,7 @@ def get(section, key):
 def get_data_root_dir():
     """Get root dir of data which is located in parent directory of package directory"""
     root_dir = get('user_dirs', 'root_dir')
-    root_path = os.path.join(package_path, '../..' , root_dir)
+    root_path = os.path.join(package_path, '..', '..' , root_dir)
 
     return root_path
 
