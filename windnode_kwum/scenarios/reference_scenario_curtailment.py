@@ -36,6 +36,8 @@ def run_scenario(cfg):
     results = simulate(esys=esys,
                        solver=cfg['solver'])
 
+    esys.results = results
+
     if cfg['dump']:
         path = os.path.join(config.get_data_root_dir(),
                             config.get('user_dirs',
