@@ -70,8 +70,9 @@ def plot_results(esys, results):
     draw_graph(grph=graph, plot=True, layout='neato', node_size=1000,
                node_color={
                    'bus_el': '#cd3333',
-                   'bus_gas': '#7EC0EE',
-                   'bus_th': '#eeac7e'})
+                   'bus_th_pr': '#7EC0EE',
+                   'bus_th_sch': '#7EC0EE',
+                   'bus_curt': '#eeac7e'})
 
     # get bus_el and bus_th data from results
     bus_el_results = views.node(results, 'bus_el')
