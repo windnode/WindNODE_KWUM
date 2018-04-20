@@ -108,7 +108,8 @@ def create_nodes(nd=None, datetime_index = list()):
         if t['active']:
             # set static inflow values
             inflow_args = {'variable_costs': t['variable input costs'],
-                           'nominal_value': t['max nom input']}
+                           'nominal_value': t['max nom input'],
+                           'fixed': t['fixed']}
             # get time series for inflow of transformer
             for col in nd['timeseries'].columns.values:
                 if col.split('.')[0] == t['label']:
