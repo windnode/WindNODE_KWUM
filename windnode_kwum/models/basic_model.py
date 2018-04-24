@@ -63,11 +63,24 @@ def create_nodes(nd=None, datetime_index = list()):
     # Create Source objects from table 'commodity sources'
     for i, cs in nd['commodity_sources'].iterrows():
         if cs['active']:
+            # set static outflow values
+            outflow_args = {'nominal_value': cs['capacity'],
+                            'fixed': cs['fixed']}
+            # get time series for node and parameter
+            for col in nd['timeseries'].columns.values:
+                if col.split('.')[0] == cs['label']:
+                    outflow_args[col.split('.')[1]] = nd['timeseries'][col]
+
+            # nodes.append(
+            #     solph.Source(label=cs['label'],
+            #                  outputs={busd[cs['to']]: solph.Flow(
+            #                      variable_costs=cs['variable costs'])})
+            #             )
+
             nodes.append(
                 solph.Source(label=cs['label'],
-                             outputs={busd[cs['to']]: solph.Flow(
-                                 variable_costs=cs['variable costs'])})
-                        )
+                             outputs={busd[cs['to']]: solph.Flow(**outflow_args)})
+            )
 
     # Create Source objects with fixed time series from 'renewables' table
     for i, re in nd['renewables'].iterrows():
