@@ -110,6 +110,76 @@ def plot_results(esys, results):
         rotation=90, minor=False)
     plt.show()
 
+########################### ADDED BUS_TH PLOTS    ########################################
+
+    #### get bus_th data from results
+    bus_th_pr_results = views.node(results, 'bus_th_pr')
+    bus_th_pr_results_flows = bus_th_pr_results['sequences']
+    bus_th_sch_results = views.node(results, 'bus_th_sch')
+    bus_th_sch_results_flows = bus_th_sch_results['sequences']
+
+    # print some sums for bus_th_pr
+    print(bus_th_pr_results['sequences'].sum())
+    print(bus_th_pr_results['sequences'].info())
+
+    # some example plots for bus_th_pr
+    ax = bus_th_pr_results_flows.sum(axis=0).plot(kind='barh')
+    ax.set_title('Sums for optimization period')
+    ax.set_xlabel('Energy (MWh)')
+    ax.set_ylabel('Flow')
+    plt.tight_layout()
+    plt.show()
+
+    bus_th_pr_results_flows.plot(kind='line', drawstyle='steps-post')
+    plt.show()
+
+    ax = bus_th_pr_results_flows.plot(kind='bar', stacked=True, linewidth=0, width=1)
+    ax.set_title('Sums for optimization period')
+    ax.legend(loc='upper right', bbox_to_anchor=(1, 1))
+    ax.set_xlabel('Energy (MWh)')
+    ax.set_ylabel('Flow')
+    plt.tight_layout()
+
+    dates = bus_th_pr_results_flows.index
+    tick_distance = int(len(dates) / 7) - 1
+    ax.set_xticks(range(0, len(dates), tick_distance), minor=False)
+    ax.set_xticklabels(
+        [item.strftime('%d-%m-%Y') for item in dates.tolist()[0::tick_distance]],
+        rotation=90, minor=False)
+    plt.show()
+
+    # print some sums for bus_th_sch
+    print(bus_th_sch_results['sequences'].sum())
+    print(bus_th_sch_results['sequences'].info())
+
+    # some example plots for bus_th_sch
+    ax = bus_th_sch_results_flows.sum(axis=0).plot(kind='barh')
+    ax.set_title('Sums for optimization period')
+    ax.set_xlabel('Energy (MWh)')
+    ax.set_ylabel('Flow')
+    plt.tight_layout()
+    plt.show()
+
+    bus_th_sch_results_flows.plot(kind='line', drawstyle='steps-post')
+    plt.show()
+
+    ax = bus_th_sch_results_flows.plot(kind='bar', stacked=True, linewidth=0, width=1)
+    ax.set_title('Sums for optimization period')
+    ax.legend(loc='upper right', bbox_to_anchor=(1, 1))
+    ax.set_xlabel('Energy (MWh)')
+    ax.set_ylabel('Flow')
+    plt.tight_layout()
+
+    dates = bus_th_sch_results_flows.index
+    tick_distance = int(len(dates) / 7) - 1
+    ax.set_xticks(range(0, len(dates), tick_distance), minor=False)
+    ax.set_xticklabels(
+        [item.strftime('%d-%m-%Y') for item in dates.tolist()[0::tick_distance]],
+        rotation=90, minor=False)
+    plt.show()
+
+############################################    ########################################
+
 if __name__ == "__main__":
 
     # configuration
