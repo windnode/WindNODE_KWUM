@@ -110,6 +110,46 @@ def plot_results(esys, results):
         rotation=90, minor=False)
     plt.show()
 
+########################### ADDED BUS_CURT PLOTS    ########################################
+
+    #### get bus_curt data from results
+    bus_curt_results = views.node(results, 'bus_curt')
+    bus_curt_results_flows = bus_curt_results['sequences']
+
+    # print some sums for bus_curt
+    print(bus_curt_results['sequences'].sum())
+    print(bus_curt_results['sequences'].info())
+
+    # some example plots for bus_curt
+    ax = bus_curt_results_flows.sum(axis=0).plot(kind='barh')
+    ax.set_title('Sums for optimization period')
+    ax.set_xlabel('Energy (MWh)')
+    ax.set_ylabel('Flow')
+    plt.tight_layout()
+    plt.show()
+
+    bus_curt_results_flows.plot(kind='line', drawstyle='steps-post')
+    plt.show()
+
+    ax = bus_curt_results_flows.plot(kind='bar', stacked=True, linewidth=0, width=1)
+    ax.set_title('Sums for optimization period')
+    ax.legend(loc='upper right', bbox_to_anchor=(1, 1))
+    ax.set_xlabel('Energy (MWh)')
+    ax.set_ylabel('Flow')
+    plt.tight_layout()
+
+    dates = bus_curt_results_flows.index
+    tick_distance = int(len(dates) / 7) - 1
+    ax.set_xticks(range(0, len(dates), tick_distance), minor=False)
+    ax.set_xticklabels(
+        [item.strftime('%d-%m-%Y') for item in dates.tolist()[0::tick_distance]],
+        rotation=90, minor=False)
+    plt.show()
+
+
+############################################    ########################################
+
+
 ########################### ADDED BUS_TH PLOTS    ########################################
 
     #### get bus_th data from results
