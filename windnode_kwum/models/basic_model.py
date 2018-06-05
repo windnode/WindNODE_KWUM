@@ -1,4 +1,7 @@
 import logging
+
+import math
+
 logger = logging.getLogger('windnode_kwum')
 
 import oemof.solph as solph
@@ -105,6 +108,11 @@ def create_nodes(nd=None, datetime_index = list()):
             # set static inflow values
             inflow_args = {'nominal_value': de['nominal value'],
                            'fixed': de['fixed']}
+
+            # look for the fixed variable_costs fixture in demand table
+            if not math.isnan(de['variable cost']):
+                inflow_args['variable_costs'] = de['variable cost']
+
             # get time series for node and parameter
             for col in nd['timeseries'].columns.values:
                 if col.split('.')[0] == de['label']:
@@ -191,8 +199,8 @@ def create_nodes(nd=None, datetime_index = list()):
                                             electrical_output={busd[c['to_el']]: solph.Flow(
                                                 P_max_woDH=[200 for p in range(0, periods)],
                                                 P_min_woDH=[100 for p in range(0, periods)],
-                                                Eta_el_max_woDH=[0.44 for p in range(0, periods)],
-                                                Eta_el_min_woDH=[0.40 for p in range(0, periods)])},
+                                                Eta_el_max_woDH=[c['efficiency max'] for p in range(0, periods)],
+                                                Eta_el_min_woDH=[c['efficiency min'] for p in range(0, periods)])},
                                             heat_output={busd[c['to_th']]: solph.Flow(
                                                 Q_CW_min=[0 for p in range(0, periods)])},
                                             Beta=[0 for p in range(0, periods)],
