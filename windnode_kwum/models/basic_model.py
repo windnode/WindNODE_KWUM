@@ -68,11 +68,8 @@ def create_nodes(nd=None, datetime_index = list()):
         if cs['active']:
             # set static outflow values
             outflow_args = {'nominal_value': cs['capacity'],
-                            'fixed': cs['fixed']}
-            # get time series for node and parameter
-            for col in nd['timeseries'].columns.values:
-                if col.split('.')[0] == cs['label']:
-                    outflow_args[col.split('.')[1]] = nd['timeseries'][col]
+                            'variable_costs': cs['variable costs']}
+
 
             # nodes.append(
             #     solph.Source(label=cs['label'],
@@ -110,8 +107,8 @@ def create_nodes(nd=None, datetime_index = list()):
                            'fixed': de['fixed']}
 
             # look for the fixed variable_costs fixture in demand table
-            if not math.isnan(de['variable cost']):
-                inflow_args['variable_costs'] = de['variable cost']
+            if not math.isnan(de['variable costs']):
+                inflow_args['variable_costs'] = de['variable costs']
 
             # get time series for node and parameter
             for col in nd['timeseries'].columns.values:
@@ -197,10 +194,10 @@ def create_nodes(nd=None, datetime_index = list()):
                                                 H_L_FG_share_max=[0.18 for p in range(0, periods)],
                                                 H_L_FG_share_min=[0.41 for p in range(0, periods)])},
                                             electrical_output={busd[c['to_el']]: solph.Flow(
-                                                P_max_woDH=[200 for p in range(0, periods)],
-                                                P_min_woDH=[100 for p in range(0, periods)],
-                                                Eta_el_max_woDH=[c['efficiency max'] for p in range(0, periods)],
-                                                Eta_el_min_woDH=[c['efficiency min'] for p in range(0, periods)])},
+                                                P_max_woDH=[c['power max'] for p in range(0, periods)],
+                                                P_min_woDH=[c['power min'] for p in range(0, periods)],
+                                                Eta_el_max_woDH=[c['el efficiency max'] for p in range(0, periods)],
+                                                Eta_el_min_woDH=[c['el efficiency min'] for p in range(0, periods)])},
                                             heat_output={busd[c['to_th']]: solph.Flow(
                                                 Q_CW_min=[0 for p in range(0, periods)])},
                                             Beta=[0 for p in range(0, periods)],
