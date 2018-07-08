@@ -70,6 +70,10 @@ def create_nodes(nd=None, datetime_index = list()):
             outflow_args = {'nominal_value': cs['capacity'],
                             'variable_costs': cs['variable costs']}
 
+            # get time series for node and parameter
+            for col in nd['timeseries'].columns.values:
+                if col.split('.')[0] == cs['label']:
+                    outflow_args[col.split('.')[1]] = nd['timeseries'][col]
 
             # nodes.append(
             #     solph.Source(label=cs['label'],

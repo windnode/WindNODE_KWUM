@@ -226,7 +226,7 @@ if __name__ == "__main__":
     cfg = {
         'data_path': os.path.join(os.path.dirname(__file__), 'data'),
         'date_from': '2016-01-01 00:00:00',
-        'date_to': '2016-01-07 23:00:00',
+        'date_to': '2016-01-08 23:00:00',
         'freq': '60min',
         'scenario_file': 'reference_scenario_curtailment.xlsx',
         'data_file': 'reference_scenario_curtailment_data.xlsx',
