@@ -129,20 +129,20 @@ def create_nodes(nd=None, datetime_index = list()):
     for i, t in nd['transformers'].iterrows():
         if t['active']:
             # set static inflow values
-            inflow_args = {'variable_costs': t['variable input costs'],
-                           'nominal_value': t['max nom input'],
-                           'fixed': t['fixed']}
+            inflow_args = {'variable_costs': t['variable input costs']}
+            outflow_args = {'variable_costs': t['variable input costs'],
+                            'nominal_value': t['max nom input'],
+                            'fixed': t['fixed']}
             # get time series for inflow of transformer
             for col in nd['timeseries'].columns.values:
                 if col.split('.')[0] == t['label']:
-                    inflow_args[col.split('.')[1]] = nd['timeseries'][col][datetime_index]
+                    outflow_args[col.split('.')[1]] = nd['timeseries'][col][datetime_index]
             # create
             nodes.append(
                 solph.Transformer(
                     label=t['label'],
                     inputs={busd[t['from']]: solph.Flow(**inflow_args)},
-                    outputs={busd[t['to']]: solph.Flow(
-                            nominal_value=t['capacity'])},
+                    outputs={busd[t['to']]: solph.Flow(**outflow_args)},
                     conversion_factors={busd[t['to']]: t['efficiency']})
             )
 
