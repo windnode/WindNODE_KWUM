@@ -73,7 +73,7 @@ def create_nodes(nd=None, datetime_index = list()):
             # get time series for node and parameter
             for col in nd['timeseries'].columns.values:
                 if col.split('.')[0] == cs['label']:
-                    outflow_args[col.split('.')[1]] = nd['timeseries'][col]
+                    outflow_args[col.split('.')[1]] = nd['timeseries'][col][datetime_index]
 
             # nodes.append(
             #     solph.Source(label=cs['label'],
@@ -95,7 +95,7 @@ def create_nodes(nd=None, datetime_index = list()):
             # get time series for node and parameter
             for col in nd['timeseries'].columns.values:
                 if col.split('.')[0] == re['label']:
-                    outflow_args[col.split('.')[1]] = nd['timeseries'][col]
+                    outflow_args[col.split('.')[1]] = nd['timeseries'][col][datetime_index]
 
             # create
             nodes.append(
@@ -117,7 +117,7 @@ def create_nodes(nd=None, datetime_index = list()):
             # get time series for node and parameter
             for col in nd['timeseries'].columns.values:
                 if col.split('.')[0] == de['label']:
-                    inflow_args[col.split('.')[1]] = nd['timeseries'][col]
+                    inflow_args[col.split('.')[1]] = nd['timeseries'][col][datetime_index]
 
             # create
             nodes.append(
@@ -135,7 +135,7 @@ def create_nodes(nd=None, datetime_index = list()):
             # get time series for inflow of transformer
             for col in nd['timeseries'].columns.values:
                 if col.split('.')[0] == t['label']:
-                    inflow_args[col.split('.')[1]] = nd['timeseries'][col]
+                    inflow_args[col.split('.')[1]] = nd['timeseries'][col][datetime_index]
             # create
             nodes.append(
                 solph.Transformer(
