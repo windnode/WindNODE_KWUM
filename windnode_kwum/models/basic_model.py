@@ -66,20 +66,15 @@ def create_nodes(nd=None, datetime_index = list()):
     # Create Source objects from table 'commodity sources'
     for i, cs in nd['commodity_sources'].iterrows():
         if cs['active']:
-            # set static outflow values
+            # set static outflow values from the commodity sources tab in the excel file
             outflow_args = {'nominal_value': cs['capacity'],
                             'variable_costs': cs['variable costs']}
 
             # get time series for node and parameter
+            # Parameters pre-set in outflow_args will be overwritten if a time series is available
             for col in nd['timeseries'].columns.values:
                 if col.split('.')[0] == cs['label']:
                     outflow_args[col.split('.')[1]] = nd['timeseries'][col][datetime_index]
-
-            # nodes.append(
-            #     solph.Source(label=cs['label'],
-            #                  outputs={busd[cs['to']]: solph.Flow(
-            #                      variable_costs=cs['variable costs'])})
-            #             )
 
             nodes.append(
                 solph.Source(label=cs['label'],
@@ -130,9 +125,10 @@ def create_nodes(nd=None, datetime_index = list()):
         if t['active']:
             # set static inflow values
             inflow_args = {'variable_costs': t['variable input costs']}
-            outflow_args = {'nominal_value': t['max nom input'],
+            outflow_args = {'nominal_value': t['capacity'],
                             'fixed': t['fixed']}
             # get time series for inflow of transformer
+            # Parameters pre-set in outflow_args will be overwritten if a time series is available
             for col in nd['timeseries'].columns.values:
                 if col.split('.')[0] == t['label']:
                     outflow_args[col.split('.')[1]] = nd['timeseries'][col][datetime_index]
@@ -145,6 +141,7 @@ def create_nodes(nd=None, datetime_index = list()):
                     conversion_factors={busd[t['to']]: t['efficiency']})
             )
 
+    # Create Storages objects from 'storages' tab; using GenericStorage component
     for i, s in nd['storages'].iterrows():
         if s['active']:
             nodes.append(
@@ -163,6 +160,7 @@ def create_nodes(nd=None, datetime_index = list()):
                     outflow_conversion_factor=s['efficiency outflow'])
             )
 
+    # Create power lines between 2 buses from 'powerlines' tab
     for i, p in nd['powerlines'].iterrows():
         if p['active']:
             nodes.append(
@@ -180,6 +178,7 @@ def create_nodes(nd=None, datetime_index = list()):
                     conversion_factors={busd[p['bus_1']]: p['efficiency']})
             )
 
+    # Create a CHP plant objects from 'chp' tab; using GenericCHP component
     for i, c in nd['chp'].iterrows():
         if c['active']:
 
