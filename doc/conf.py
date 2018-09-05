@@ -61,7 +61,7 @@ napoleon_use_admonition_for_references = False
 napoleon_use_ivar = False
 napoleon_use_param = True
 napoleon_use_rtype = True
-napoleon_use_keyword = True
+napoleon_use_keyword = False
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
