@@ -24,7 +24,7 @@ copyright = '2018, Reiner Lemoine Institut gGmbH'
 author = 'Reiner Lemoine Institut gGmbH'
 
 # The short X.Y version
-version = ''
+version = '0.0.1'
 # The full version, including alpha/beta/rc tags
 release = ''
 
