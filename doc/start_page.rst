@@ -23,7 +23,7 @@ For those of you who want to contribute see :ref:`dev-notes` and the
 LICENSE
 -------
 
-Copyright (C) 2018 Reiner Lemoine Institut gGmbH
+Copyright (C) 2018 Reiner Lemoine Institut gGmbH and Fraunhofer IEE
 
 This program is free software: you can redistribute it and/or modify it under
 the terms of the GNU Affero General Public License as published by the Free
