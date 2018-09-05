@@ -1,8 +1,7 @@
-WindNODE_KWUM
+windnode_kwum
 =============
 
 .. toctree::
    :maxdepth: 4
 
-   setup
    windnode_kwum
