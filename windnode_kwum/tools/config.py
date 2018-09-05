@@ -1,22 +1,12 @@
 """This module provides a highlevel layer for reading and writing config files.
 There must be a file called "config.ini" in the root-folder of the project.
 The file has to be of the following structure to be imported correctly.
-# this is a comment \n
-# the filestructure is like: \n
- \n
-[netCDF] \n
-RootFolder = c://netCDF \n
-FilePrefix = cd2_ \n
- \n
-[mySQL] \n
-host = localhost \n
-user = guest \n
-password = root \n
-database = znes \n
- \n
-[SectionName] \n
-OptionName = value \n
-Option2 = value2 \n
+
+The filestructure is like:
+
+[SectionName]
+Option1 = value1
+Option2 = value2
 """
 
 __copyright__  = "Reiner Lemoine Institut gGmbH"
