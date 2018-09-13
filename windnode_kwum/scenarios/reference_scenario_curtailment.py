@@ -15,6 +15,10 @@ from windnode_kwum.tools.draw import draw_graph
 from oemof.outputlib import processing, views
 from oemof.graph import create_nx_graph
 
+from windnode_kwum.tools.data import oemof_nodes_from_excel
+from windnode_kwum.tools.config import get_data_root_dir
+import pandas as pd
+
 import matplotlib.pyplot as plt
 
 
@@ -78,6 +82,70 @@ def plot_results(esys, results):
     draw_graph(grph=graph, plot=True, layout='neato', node_size=1000,
                node_color=busColorObject)
 
+
+    # Print demand vs curtailed energy
+
+    # Extract information from both excel files (public and private)
+    nd = oemof_nodes_from_excel(
+        scenario_file=os.path.join(cfg['data_path'],
+                                   cfg['scenario_file']),
+        data_file=os.path.join(get_data_root_dir(),
+                               config.get('user_dirs', 'data_dir'),
+                               cfg['data_file'])
+    )
+
+    # Declare timeframe to analyze
+    datetime_index = pd.date_range(start=cfg['date_from'],
+                                   end=cfg['date_to'],
+                                   freq=cfg['freq'])
+
+    curtailment_capacity = 1
+    # Gets the capacity of the curtailment transformer from the excel file
+    for i, tr in nd['transformers'].iterrows():
+        if tr['active']:
+            if tr['label'] == 'curtailment':
+                curtailment_capacity = int(tr['capacity'])
+
+    # Run through the demand sinks
+    for i, de in nd['demand'].iterrows():
+        if de['active']:
+            curtailment_timeseries = ''
+            demand_timeseries = ''
+            # Run through the timeseries tab from the excel files
+            for col in nd['timeseries'].columns.values:
+                # Get the timeseries for curtailment.actual_value
+
+                # ATTENTION!
+                #   In order to make this plot work, the curtailment transformer MUST be named "curtailment"
+                # END NOTE
+
+                if col == 'curtailment.actual_value':
+                    curtailment_timeseries = nd['timeseries'][col][datetime_index]
+                    # The nominal value of the curtailment time series is multiplied by the capacity value
+                    # of the curtailment transformer, the result is the absolute value of the curtailment
+                    curtailment_timeseries = curtailment_timeseries.mul(curtailment_capacity)
+
+                # Get the timeseries for the demand sinks
+                if col == de['label']+'.actual_value':
+                    demand_timeseries = nd['timeseries'][col][datetime_index]
+
+            # If there is no curtailment.actual_value timeseries, show error message
+            if curtailment_timeseries is '':
+                logger.error('Error! curtailment dataseries should be called \"curtailment.actual_value\" to correlate curtailment vs. '+de['label'])
+            else:
+                # If no actual_value timeseries was found for the current demand sink in the loop, skip plotting
+                if demand_timeseries is not '':
+                    plotData = {'curtailment': curtailment_timeseries, de['label']: demand_timeseries}
+                    plotDataframe = pd.DataFrame(data=plotData)
+                    plotSettings = plotDataframe.plot(kind='line', drawstyle='steps-post')
+                    plotSettings.set_title('Demand - Curtailed energy correlation')
+                    plotSettings.set_xlabel('Time')
+                    plotSettings.set_ylabel('MW')
+                    plt.show()
+                else:
+                    logger.warn(de['label']+' does not have an actual_value timeseries')
+
+
     # Loop through the buses from the busList to plot them one by one
     for bus in busList:
         # get bus from results
@@ -102,8 +170,8 @@ def plot_results(esys, results):
         ax = bus_results_flows.plot(kind='bar', stacked=True, linewidth=0, width=1)
         ax.set_title('Sums for optimization period')
         ax.legend(loc='upper right', bbox_to_anchor=(1, 1))
-        ax.set_xlabel('Energy (MWh)')
-        ax.set_ylabel('Flow')
+        ax.set_xlabel('Flow')
+        ax.set_ylabel('Energy (MWh)')
         plt.tight_layout()
 
         dates = bus_results_flows.index
@@ -121,7 +189,7 @@ if __name__ == "__main__":
     cfg = {
         'data_path': os.path.join(os.path.dirname(__file__), 'data'),
         'date_from': '2016-02-01 00:00:00',
-        'date_to': '2016-02-29 23:00:00',
+        'date_to': '2016-02-25 05:00:00',
         'freq': '60min',
         'scenario_file': 'reference_scenario_curtailment.xlsx',
         'data_file': 'reference_scenario_curtailment_data.xlsx',
