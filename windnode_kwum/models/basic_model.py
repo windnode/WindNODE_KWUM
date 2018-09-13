@@ -133,13 +133,23 @@ def create_nodes(nd=None, datetime_index = list()):
                 if col.split('.')[0] == t['label']:
                     outflow_args[col.split('.')[1]] = nd['timeseries'][col][datetime_index]
             # create
-            nodes.append(
-                solph.Transformer(
-                    label=t['label'],
-                    inputs={busd[t['from']]: solph.Flow(**inflow_args)},
-                    outputs={busd[t['to']]: solph.Flow(**outflow_args)},
-                    conversion_factors={busd[t['to']]: t['efficiency']})
-            )
+            if pd.isnull(t['from_bus2']):
+                nodes.append(
+                    solph.Transformer(
+                        label=t['label'],
+                        inputs={busd[t['from_bus1']]: solph.Flow(**inflow_args)},
+                        outputs={busd[t['to']]: solph.Flow(**outflow_args)},
+                        conversion_factors={busd[t['to']]: t['efficiency']})
+                )
+            else:
+                nodes.append(
+                    solph.Transformer(
+                        label=t['label'],
+                        inputs={busd[t['from_bus1']]: solph.Flow(**inflow_args),
+                                busd[t['from_bus2']]: solph.Flow(**inflow_args)},
+                        outputs={busd[t['to']]: solph.Flow(**outflow_args)},
+                        conversion_factors={busd[t['to']]: t['efficiency']})
+                )
 
     # Create Storages objects from 'storages' tab; using GenericStorage component
     for i, s in nd['storages'].iterrows():
