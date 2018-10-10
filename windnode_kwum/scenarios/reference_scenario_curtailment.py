@@ -115,9 +115,7 @@ def plot_results(esys, results):
         plt.show()
 
 
-if __name__ == "__main__":
-
-    # model configuration
+def executeMain():
     cfg = {
         'data_path': os.path.join(os.path.dirname(__file__), 'data'),
         'date_from': '2016-02-01 00:00:00',
@@ -139,3 +137,30 @@ if __name__ == "__main__":
                  results=results)
 
     logger.info('Done!')
+
+
+if __name__ == "__main__":
+    executeMain()
+
+    # model configuration
+    # cfg = {
+    #     'data_path': os.path.join(os.path.dirname(__file__), 'data'),
+    #     'date_from': '2016-02-01 00:00:00',
+    #     'date_to': '2016-02-29 23:00:00',
+    #     'freq': '60min',
+    #     'scenario_file': 'reference_scenario_curtailment.xlsx',
+    #     'data_file': 'reference_scenario_curtailment_data.xlsx',
+    #     'results_path': os.path.join(config.get_data_root_dir(),
+    #                                  config.get('user_dirs',
+    #                                             'results_dir')),
+    #     'solver': 'cbc',
+    #     'verbose': True,
+    #     'dump': True
+    # }
+    #
+    # esys, results = run_scenario(cfg=cfg)
+    #
+    # plot_results(esys=esys,
+    #              results=results)
+    #
+    # logger.info('Done!')
