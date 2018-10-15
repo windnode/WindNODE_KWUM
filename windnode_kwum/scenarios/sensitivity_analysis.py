@@ -2,6 +2,10 @@ import itertools
 import numpy as np
 from windnode_kwum.scenarios import reference_scenario_curtailment
 from openpyxl import load_workbook
+import csv
+import seaborn as sns; sns.set()
+import pandas as pd
+import matplotlib.pyplot as plt
 
 # function to create combinations of param values while preserving param names
 def product_dict(**kwargs):
@@ -11,7 +15,7 @@ def product_dict(**kwargs):
         yield dict(zip(keys, instance))
 
 # format: 'param': [min, max, step]
-params_to_be_varied = {'transformers.P2H_sch.capacity': [10, 12, 1], 'chp.chp_sch.power max':[1, 2, 1]}
+params_to_be_varied = {'transformers.P2H_sch.capacity': [10, 11, 1], 'chp.chp_sch.power max':[1, 2, 1]}
 
 # create ranges
 param_val_ranges = {}
@@ -21,22 +25,30 @@ for key, val in params_to_be_varied.items():
 # create combinations using those ranges
 param_val_combinations = list(product_dict(**param_val_ranges))
 
+csvData = [['Var 1', 'Var 2', "result"]]
+
 # do something with the data
 for run_no, comb in enumerate(param_val_combinations):
     print('Run no ', str(run_no))
     print('=============')
-    parameter_set = [];
+    parameter_set = []
+    data_from_run = []
     for key, val in comb.items():
         print('Parameter', key, '=', val)
 
         parameter_set.append({'key' : key, 'value': str(val)})
+
+        data_from_run.append(str(val))
 
 
     # INSERT MODEL PARAMETERIZATION HERE
 
     # scenario_file = os.path.join('reference_scenario_curtailment.xlsx')
    #TODO adjust the file path!!!
+    # dest = '/Users/ricardoviteribuendia/Desktop/Paytoncosas/Repositories/WindNODE_KWUM/windnode_kwum/scenarios/data/reference_scenario_curtailment.xlsx'
+
     dest = '/Users/ricardoviteribuendia/Desktop/Paytoncosas/Repositories/WindNODE_KWUM/windnode_kwum/scenarios/data/reference_scenario_curtailment.xlsx'
+
 
     # Open an xlsx for reading
     wb = load_workbook(filename=dest)
@@ -63,6 +75,21 @@ for run_no, comb in enumerate(param_val_combinations):
 
     wb.save(dest)
 
-    reference_scenario_curtailment.executeMain()
+    reference_scenario_curtailment.executeMain(is_sensitivity_analysis=True, SA_results=data_from_run, SA_value_to_extract="P2H_sch.bus_th_sch")
+
+    csvData.append(data_from_run)
 
     print('======== Run END ========')
+
+# Write sensitivity analysis results in a CSV file
+
+with open('/Users/ricardoviteribuendia/Desktop/Paytoncosas/Repositories/WindNODE_KWUM/windnode_kwum/scenarios/data/sensitivity_results.csv', 'w') as csvFile:
+    writer = csv.writer(csvFile)
+    writer.writerows(csvData)
+
+csvFile.close()
+
+sensitivity_heatmap = pd.read_csv("/Users/ricardoviteribuendia/Desktop/Paytoncosas/Repositories/WindNODE_KWUM/windnode_kwum/scenarios/data/sensitivity_results.csv")
+sensitivity_heatmap = sensitivity_heatmap.pivot('Var 1', 'Var 2', "result")
+ax = sns.heatmap(sensitivity_heatmap)
+plt.show()

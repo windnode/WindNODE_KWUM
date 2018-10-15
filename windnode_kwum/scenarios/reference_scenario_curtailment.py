@@ -55,7 +55,7 @@ def run_scenario(cfg):
     return esys, results
 
 
-def plot_results(esys, results):
+def plot_results(esys, results, is_sensitivity_analysis, SA_results, SA_value_to_extract):
     """Plots results of simulation
 
     Parameters
@@ -64,7 +64,6 @@ def plot_results(esys, results):
     results : :obj:`dict`
         Results of simulation
     """
-
     logger.info('Plot results')
 
     # Create a sub-list with only Bus type nodes to specifically color them in the plot
@@ -73,10 +72,11 @@ def plot_results(esys, results):
     for bus in busList:
         busColorObject[bus.label] = '#cd3333'
 
-    # print graph of energy system
-    graph = create_nx_graph(esys)
-    draw_graph(grph=graph, plot=True, layout='neato', node_size=1000,
-               node_color=busColorObject)
+    if not is_sensitivity_analysis:
+        # print graph of energy system
+        graph = create_nx_graph(esys)
+        draw_graph(grph=graph, plot=True, layout='neato', node_size=1000,
+                   node_color=busColorObject)
 
     # Loop through the buses from the busList to plot them one by one
     for bus in busList:
@@ -88,38 +88,50 @@ def plot_results(esys, results):
         print(bus_results['sequences'].sum())
         print(bus_results['sequences'].info())
 
-        # some example plots for bus
-        ax = bus_results_flows.sum(axis=0).plot(kind='barh')
-        ax.set_title('Sums for optimization period')
-        ax.set_xlabel('Energy (MWh)')
-        ax.set_ylabel('Flow')
-        plt.tight_layout()
-        plt.show()
 
-        bus_results_flows.plot(kind='line', drawstyle='steps-post')
-        plt.show()
+        if not is_sensitivity_analysis:
+            # some example plots for bus
+            ax = bus_results_flows.sum(axis=0).plot(kind='barh')
+            ax.set_title('Sums for optimization period')
+            ax.set_xlabel('Energy (MWh)')
+            ax.set_ylabel('Flow')
+            plt.tight_layout()
+            plt.show()
 
-        ax = bus_results_flows.plot(kind='bar', stacked=True, linewidth=0, width=1)
-        ax.set_title('Sums for optimization period')
-        ax.legend(loc='upper right', bbox_to_anchor=(1, 1))
-        ax.set_xlabel('Energy (MWh)')
-        ax.set_ylabel('Flow')
-        plt.tight_layout()
+            bus_results_flows.plot(kind='line', drawstyle='steps-post')
+            plt.show()
 
-        dates = bus_results_flows.index
-        tick_distance = int(len(dates) / 7) - 1
-        ax.set_xticks(range(0, len(dates), tick_distance), minor=False)
-        ax.set_xticklabels(
-            [item.strftime('%d-%m-%Y') for item in dates.tolist()[0::tick_distance]],
-            rotation=90, minor=False)
-        plt.show()
+            ax = bus_results_flows.plot(kind='bar', stacked=True, linewidth=0, width=1)
+            ax.set_title('Sums for optimization period')
+            ax.legend(loc='upper right', bbox_to_anchor=(1, 1))
+            ax.set_xlabel('Energy (MWh)')
+            ax.set_ylabel('Flow')
+            plt.tight_layout()
+
+            dates = bus_results_flows.index
+            tick_distance = int(len(dates) / 7) - 1
+            ax.set_xticks(range(0, len(dates), tick_distance), minor=False)
+            ax.set_xticklabels(
+                [item.strftime('%d-%m-%Y') for item in dates.tolist()[0::tick_distance]],
+                rotation=90, minor=False)
+            plt.show()
+        else:
+            bus_results_series = bus_results['sequences'].sum()
+            counter = 0
+            for series_value in bus_results_series:
+                series_index = bus_results_series.index[counter]
+                from_value = series_index[0][0]
+                to_value = series_index[0][1]
+                if from_value == SA_value_to_extract.split('.')[0] and to_value == SA_value_to_extract.split('.')[1]:
+                    SA_results.append(str(series_value))
+                counter = counter + 1
 
 
-def executeMain():
+def executeMain(is_sensitivity_analysis, SA_results, SA_value_to_extract):
     cfg = {
         'data_path': os.path.join(os.path.dirname(__file__), 'data'),
         'date_from': '2016-02-01 00:00:00',
-        'date_to': '2016-02-29 23:00:00',
+        'date_to': '2016-02-01 01:00:00',
         'freq': '60min',
         'scenario_file': 'reference_scenario_curtailment.xlsx',
         'data_file': 'reference_scenario_curtailment_data.xlsx',
@@ -134,13 +146,13 @@ def executeMain():
     esys, results = run_scenario(cfg=cfg)
 
     plot_results(esys=esys,
-                 results=results)
+                 results=results, is_sensitivity_analysis=is_sensitivity_analysis, SA_results=SA_results, SA_value_to_extract=SA_value_to_extract)
 
     logger.info('Done!')
 
 
 if __name__ == "__main__":
-    executeMain()
+    executeMain(is_sensitivity_analysis=False, SA_results=[], SA_value_to_extract="")
 
     # model configuration
     # cfg = {
