@@ -17,6 +17,8 @@ from oemof.graph import create_nx_graph
 
 import matplotlib.pyplot as plt
 
+import csv
+
 
 def run_scenario(cfg):
     """Run scenario
@@ -78,6 +80,14 @@ def plot_results(esys, results, is_sensitivity_analysis, SA_results, SA_value_to
         draw_graph(grph=graph, plot=True, layout='neato', node_size=1000,
                    node_color=busColorObject)
 
+    # The results of the optimization will be stored in energy_flow_results.csv
+    # Create array of data to be written into the energy_flow_results.csv file
+    csvData = [['Bus from', 'Bus to', "Energy flow"]]
+
+    # Find the current file path for reference_scenario_curtailment.py
+    dirpath = os.getcwd()
+
+
     # Loop through the buses from the busList to plot them one by one
     for bus in busList:
         # get bus from results
@@ -115,16 +125,34 @@ def plot_results(esys, results, is_sensitivity_analysis, SA_results, SA_value_to
                 [item.strftime('%d-%m-%Y') for item in dates.tolist()[0::tick_distance]],
                 rotation=90, minor=False)
             plt.show()
-        else:
-            bus_results_series = bus_results['sequences'].sum()
-            counter = 0
-            for series_value in bus_results_series:
-                series_index = bus_results_series.index[counter]
-                from_value = series_index[0][0]
-                to_value = series_index[0][1]
-                if from_value == SA_value_to_extract.split('.')[0] and to_value == SA_value_to_extract.split('.')[1]:
-                    SA_results.append(str(series_value))
-                counter = counter + 1
+
+        # Run through the series of bus results
+        bus_results_series = bus_results['sequences'].sum()
+        counter = 0
+        for series_value in bus_results_series:
+            series_index = bus_results_series.index[counter]
+            from_value = series_index[0][0]
+            to_value = series_index[0][1]
+
+            if is_sensitivity_analysis and from_value == SA_value_to_extract.split('.')[0] and to_value == SA_value_to_extract.split('.')[1]:
+                SA_results.append(str(series_value))
+
+            # Store the results from the optimization into the array of data to be stored in the energy_flow_results.csv file
+            csvData.append([from_value, to_value, str(series_value)])
+
+            counter = counter + 1
+
+        # Create a csv file for each bus with its results in time series form
+        bus_results['sequences'].to_csv(dirpath+'/results/'+bus.label+'_energy_flow_timeseries.csv')
+
+
+    # Create/edit the energy_flow_results.csv file with the data inside the csvData array
+    with open(
+            dirpath+'/results/energy_flow_results.csv',
+            'w') as csvFile:
+        writer = csv.writer(csvFile)
+        writer.writerows(csvData)
+    csvFile.close()
 
 
 def executeMain(is_sensitivity_analysis, SA_results, SA_value_to_extract):

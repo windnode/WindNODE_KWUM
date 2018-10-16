@@ -6,6 +6,7 @@ import csv
 import seaborn as sns; sns.set()
 import pandas as pd
 import matplotlib.pyplot as plt
+import os
 
 # function to create combinations of param values while preserving param names
 def product_dict(**kwargs):
@@ -24,6 +25,9 @@ for key, val in params_to_be_varied.items():
 
 # create combinations using those ranges
 param_val_combinations = list(product_dict(**param_val_ranges))
+
+# Find the current file path for sensitivity_analysis.py
+dirpath = os.getcwd()
 
 csvData = [['Var 1', 'Var 2', "result"]]
 
@@ -44,10 +48,7 @@ for run_no, comb in enumerate(param_val_combinations):
     # INSERT MODEL PARAMETERIZATION HERE
 
     # scenario_file = os.path.join('reference_scenario_curtailment.xlsx')
-   #TODO adjust the file path!!!
-    # dest = '/Users/ricardoviteribuendia/Desktop/Paytoncosas/Repositories/WindNODE_KWUM/windnode_kwum/scenarios/data/reference_scenario_curtailment.xlsx'
-
-    dest = '/Users/ricardoviteribuendia/Desktop/Paytoncosas/Repositories/WindNODE_KWUM/windnode_kwum/scenarios/data/reference_scenario_curtailment.xlsx'
+    dest = dirpath+'/data/reference_scenario_curtailment.xlsx'
 
 
     # Open an xlsx for reading
@@ -83,13 +84,13 @@ for run_no, comb in enumerate(param_val_combinations):
 
 # Write sensitivity analysis results in a CSV file
 
-with open('/Users/ricardoviteribuendia/Desktop/Paytoncosas/Repositories/WindNODE_KWUM/windnode_kwum/scenarios/data/sensitivity_results.csv', 'w') as csvFile:
+with open(dirpath+'/results/sensitivity_results.csv', 'w') as csvFile:
     writer = csv.writer(csvFile)
     writer.writerows(csvData)
 
 csvFile.close()
 
-sensitivity_heatmap = pd.read_csv("/Users/ricardoviteribuendia/Desktop/Paytoncosas/Repositories/WindNODE_KWUM/windnode_kwum/scenarios/data/sensitivity_results.csv")
+sensitivity_heatmap = pd.read_csv(dirpath+"/results/sensitivity_results.csv")
 sensitivity_heatmap = sensitivity_heatmap.pivot('Var 1', 'Var 2', "result")
 ax = sns.heatmap(sensitivity_heatmap)
 plt.show()
