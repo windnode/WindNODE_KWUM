@@ -17,6 +17,7 @@ from oemof.graph import create_nx_graph
 
 import matplotlib.pyplot as plt
 
+# import csv to store the data results
 import csv
 
 
@@ -57,7 +58,7 @@ def run_scenario(cfg):
     return esys, results
 
 
-def plot_results(esys, results, is_sensitivity_analysis, SA_results, SA_value_to_extract):
+def plot_results(esys, results, SA_variables):
     """Plots results of simulation
 
     Parameters
@@ -74,13 +75,16 @@ def plot_results(esys, results, is_sensitivity_analysis, SA_results, SA_value_to
     for bus in busList:
         busColorObject[bus.label] = '#cd3333'
 
-    if not is_sensitivity_analysis:
+    # The plot results will be shown if reference_scenario_curtailment.py is runned
+    # If the sensitivity_analysis.py is runned, the plot results will be skiped (not shown)
+    if not SA_variables['is_active']:
         # print graph of energy system
         graph = create_nx_graph(esys)
         draw_graph(grph=graph, plot=True, layout='neato', node_size=1000,
                    node_color=busColorObject)
 
     # The results of the optimization will be stored in energy_flow_results.csv
+    # The energy_flow_results.csv is located in: WindNODE_KWUM->scenarios->results
     # Create array of data to be written into the energy_flow_results.csv file
     csvData = [['Bus from', 'Bus to', "Energy flow"]]
 
@@ -99,7 +103,7 @@ def plot_results(esys, results, is_sensitivity_analysis, SA_results, SA_value_to
         print(bus_results['sequences'].info())
 
 
-        if not is_sensitivity_analysis:
+        if not SA_variables['is_active']:
             # some example plots for bus
             ax = bus_results_flows.sum(axis=0).plot(kind='barh')
             ax.set_title('Sums for optimization period')
@@ -134,15 +138,17 @@ def plot_results(esys, results, is_sensitivity_analysis, SA_results, SA_value_to
             from_value = series_index[0][0]
             to_value = series_index[0][1]
 
-            if is_sensitivity_analysis and from_value == SA_value_to_extract.split('.')[0] and to_value == SA_value_to_extract.split('.')[1]:
-                SA_results.append(str(series_value))
+            # Extraction of specific values from the energy optimization results to be used on sensitivity_analysis.py
+            if SA_variables['is_active'] and from_value == SA_variables['value_to_extract'].split('.')[0] and to_value == SA_variables['value_to_extract'].split('.')[1]:
+                SA_variables['results'].append(str(series_value))
 
-            # Store the results from the optimization into the array of data to be stored in the energy_flow_results.csv file
+            # The results from the energy optimization are stored in the energy_flow_results.csv file
             csvData.append([from_value, to_value, str(series_value)])
 
             counter = counter + 1
 
-        # Create a csv file for each bus with its results in time series form
+        # Create a csv file for each bus with its results in timeseries form
+        # This file is located in: WindNODE_KWUM->scenarios->results
         bus_results['sequences'].to_csv(dirpath+'/results/'+bus.label+'_energy_flow_timeseries.csv')
 
 
@@ -155,11 +161,11 @@ def plot_results(esys, results, is_sensitivity_analysis, SA_results, SA_value_to
     csvFile.close()
 
 
-def executeMain(is_sensitivity_analysis, SA_results, SA_value_to_extract):
+def executeMain(SA_variables):
     cfg = {
         'data_path': os.path.join(os.path.dirname(__file__), 'data'),
         'date_from': '2016-02-01 00:00:00',
-        'date_to': '2016-02-01 01:00:00',
+        'date_to': '2016-02-10 01:00:00',
         'freq': '60min',
         'scenario_file': 'reference_scenario_curtailment.xlsx',
         'data_file': 'reference_scenario_curtailment_data.xlsx',
@@ -174,13 +180,17 @@ def executeMain(is_sensitivity_analysis, SA_results, SA_value_to_extract):
     esys, results = run_scenario(cfg=cfg)
 
     plot_results(esys=esys,
-                 results=results, is_sensitivity_analysis=is_sensitivity_analysis, SA_results=SA_results, SA_value_to_extract=SA_value_to_extract)
+                 results=results, SA_variables=SA_variables)
 
     logger.info('Done!')
 
 
 if __name__ == "__main__":
-    executeMain(is_sensitivity_analysis=False, SA_results=[], SA_value_to_extract="")
+    SA_variables = {
+        "is_active": False
+    }
+    # is_sensitivity_analysis = False, SA_results = [], SA_value_to_extract = ""
+    executeMain(SA_variables=SA_variables)
 
     # model configuration
     # cfg = {

@@ -1,22 +1,51 @@
 import itertools
 import numpy as np
 from windnode_kwum.scenarios import reference_scenario_curtailment
+
+# import the tool that modifies the excel sheet. If a problem is shown here, you have to go to:
+# PyCharm -> File -> Default Settings -> Project interpreter python 3.6 -> + (plus symbol) -> openpyxl-> install package
 from openpyxl import load_workbook
+
+# import csv to store the data results. If a problem is shown here, you have to go to:
+# PyCharm -> File -> Default Settings -> Project interpreter python 3.6 -> + (plus symbol) -> cvs -> install package
 import csv
+
+# import seaborn to plot the heatmap. If a problem is shown here, you have to go to:
+# PyCharm -> File -> Default Settings -> Project interpreter python 3.6 -> + (plus symbol) -> seaborn -> install package
 import seaborn as sns; sns.set()
+
 import pandas as pd
 import matplotlib.pyplot as plt
 import os
 
-# function to create combinations of param values while preserving param names
+
+##### HOW THIS PROGRAM WORKS? #####
+
+# This sensitivity analysis works changing two different parameters already existing in the excel file reference_scenario_curtailment.xls
+# This program do the sensitivity analysis as follows:
+    #  1) The program will open the excel file reference_scenario_curtailment.xlsx and will change the two desired parameters
+    #  2) The changes of the excel file will be saved
+    #  3) The reference_scenario_curtailmente.py will be executed to get the results of the optimization of the energy system
+    #  4) The results of the optimization and the combination of the parameters will be saved on a csv file called sensitivity_results.csv
+    #  5) A heat map will be plot using the data stored on the file sensitivy_results.csv
+
+
+
+##### DEFINITION OF PARAMETERS AND VALUES FOR SENSITIVITY ANALYSIS #####
+
+# function to create combinations of parameter values while preserving parameter names
 def product_dict(**kwargs):
     keys = kwargs.keys()
     values = kwargs.values()
     for instance in itertools.product(*values):
         yield dict(zip(keys, instance))
 
-# format: 'param': [min, max, step]
-params_to_be_varied = {'transformers.P2H_sch.capacity': [10, 11, 1], 'chp.chp_sch.power max':[1, 2, 1]}
+# Sensitive analysis works changing two different parameters already existing in the excel file reference_scenario_curtailment.xls
+# Define the variables of the parameters to be varied. Format of the name: 'tab.row.column'
+x_param_to_be_varied = "transformers.P2H_sch.capacity"
+y_param_to_be_varied = "storages.storage_th_sch.nominal capacity"
+# Format for the range and step [min, max, step]
+params_to_be_varied = {x_param_to_be_varied: [3.4, 68, 70], y_param_to_be_varied:[34, 680, 700]}
 
 # create ranges
 param_val_ranges = {}
@@ -29,9 +58,12 @@ param_val_combinations = list(product_dict(**param_val_ranges))
 # Find the current file path for sensitivity_analysis.py
 dirpath = os.getcwd()
 
-csvData = [['Var 1', 'Var 2', "result"]]
+# Create a csv file containing the data of the sensitivity analysis. This file is called sensitivity_results.csv
+# and is stored  at: WindNODE_KWUM->scenarios->results
+# csvData = [['Var 1', 'Var 2', "result"]]
+csvData = [[x_param_to_be_varied, y_param_to_be_varied, "result"]]
 
-# do something with the data
+# Start the Combination of parameters_to_be_varied
 for run_no, comb in enumerate(param_val_combinations):
     print('Run no ', str(run_no))
     print('=============')
@@ -45,23 +77,23 @@ for run_no, comb in enumerate(param_val_combinations):
         data_from_run.append(str(val))
 
 
-    # INSERT MODEL PARAMETERIZATION HERE
-
     # scenario_file = os.path.join('reference_scenario_curtailment.xlsx')
     dest = dirpath+'/data/reference_scenario_curtailment.xlsx'
 
 
-    # Open an xlsx for reading
+##### OPEN, MODIFY AND SAVE EXCEL FILE #####
+
+    # Open the reference_scenario_curtailment.xlsx for reading
     wb = load_workbook(filename=dest)
 
     for param in parameter_set:
 
         file_sections = param.get('key').split('.')
 
-        # You can also select a particular sheet
-        # based on sheet name
-        ws = wb.get_sheet_by_name(file_sections[0])
+        # Open the sheet specified on the parameter_to_be_varied -> (tab.row.column)
+        ws = wb[file_sections[0]] #wb.get_sheet_by_name(file_sections[0])
 
+        # Edit the cell specified on the parameter_to_be_varied -> (tab.row.column)
         row_to_edit = ''
         column_to_edit = ''
 
@@ -74,23 +106,42 @@ for run_no, comb in enumerate(param_val_combinations):
 
         ws.cell(row=row_to_edit, column=column_to_edit).value = param.get('value')
 
+    # Save excel file with the changes made
     wb.save(dest)
 
-    reference_scenario_curtailment.executeMain(is_sensitivity_analysis=True, SA_results=data_from_run, SA_value_to_extract="P2H_sch.bus_th_sch")
+
+##### EXECUTE reference_scenario_curtailment AND EXTRACT THE VALUE NEEDED #####
+
+    # Run the reference_scenario_curtailment.py to execute the  optimization of the energy system
+    SA_variables = {
+        "is_active": True,
+        "results": data_from_run,
+        "value_to_extract": "bus_flex.P2H_sch"
+    }
+
+    reference_scenario_curtailment.executeMain(SA_variables=SA_variables)
 
     csvData.append(data_from_run)
 
     print('======== Run END ========')
 
-# Write sensitivity analysis results in a CSV file
 
+##### SAVE THE RESULTS OF THE SENSITIVITY ANALYSIS #####
+
+# Write sensitivity analysis results in a CSV file called sensitivity_results.csv located in: WindNODE_KWUM->scenarios->results
 with open(dirpath+'/results/sensitivity_results.csv', 'w') as csvFile:
     writer = csv.writer(csvFile)
     writer.writerows(csvData)
 
 csvFile.close()
 
+
+##### PLOT RESULTS OF THE SENSITIVITY ANALYSIS IN A HEATMAP FORMAT #####
+
+
+#Plot heatmap of with the results of each run of the energy system optimization
 sensitivity_heatmap = pd.read_csv(dirpath+"/results/sensitivity_results.csv")
-sensitivity_heatmap = sensitivity_heatmap.pivot('Var 1', 'Var 2', "result")
-ax = sns.heatmap(sensitivity_heatmap)
+sensitivity_heatmap = sensitivity_heatmap.pivot(x_param_to_be_varied, y_param_to_be_varied, "result")
+ax = sns.heatmap(sensitivity_heatmap, annot=True, fmt=".1f")
+ax.invert_yaxis()
 plt.show()
