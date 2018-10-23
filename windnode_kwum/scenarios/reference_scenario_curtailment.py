@@ -15,6 +15,8 @@ from windnode_kwum.tools.draw import draw_graph
 from oemof.outputlib import processing, views
 from oemof.graph import create_nx_graph
 
+import pandas as pd
+
 import matplotlib.pyplot as plt
 
 
@@ -78,6 +80,9 @@ def plot_results(esys, results):
     draw_graph(grph=graph, plot=True, layout='neato', node_size=1000,
                node_color=busColorObject)
 
+    timeseries_to_plot = {}
+
+
     # Loop through the buses from the busList to plot them one by one
     for bus in busList:
         # get bus from results
@@ -102,8 +107,8 @@ def plot_results(esys, results):
         ax = bus_results_flows.plot(kind='bar', stacked=True, linewidth=0, width=1)
         ax.set_title('Sums for optimization period')
         ax.legend(loc='upper right', bbox_to_anchor=(1, 1))
-        ax.set_xlabel('Energy (MWh)')
-        ax.set_ylabel('Flow')
+        ax.set_xlabel('Flow')
+        ax.set_ylabel('Energy (MWh)')
         plt.tight_layout()
 
         dates = bus_results_flows.index
@@ -115,13 +120,62 @@ def plot_results(esys, results):
         plt.show()
 
 
+        #### Graph curtailment vs. District Heating Demand ####
+
+        # Get curtailment time series from bus results
+        if bus.label == 'bus_el':
+            counter = 0
+            for series_value in bus_results_flows:
+                print(series_value)
+                if series_value[0][0] == 'bus_el' and series_value[0][1] == 'curtailment':
+                    timeseries_to_plot['curtailment'] = bus_results_flows[series_value]
+                counter = counter+1
+
+
+        # Get Prenzlau district heating demand time series from bus results
+        if bus.label == 'bus_th_pr':
+            counter = 0
+            for series_value in bus_results_flows:
+                print(series_value)
+                if series_value[0][0] == 'bus_th_pr' and series_value[0][1] == 'dist_heat_pr':
+                    timeseries_to_plot['Distric_Heating_demand_pr'] = bus_results_flows[series_value]
+                counter = counter+1
+
+        # Get Schwedt district heating demand time series from bus results
+        if bus.label == 'bus_th_sch':
+            counter = 0
+            for series_value in bus_results_flows:
+                print(series_value)
+                if series_value[0][0] == 'bus_th_sch' and series_value[0][1] == 'dist_heat_sch':
+                    timeseries_to_plot['Distric_Heating_demand_sch'] = bus_results_flows[series_value]
+                counter = counter+1
+
+    # Plot graph Graph curtailment vs. District Heating Demand Prenzlau
+    plotData = {'curtailment': timeseries_to_plot['curtailment'], 'Distric_Heating_demand_pr': timeseries_to_plot['Distric_Heating_demand_pr']}
+    plotDataframe = pd.DataFrame(data=plotData)
+    plotSettings = plotDataframe.plot(kind='line', drawstyle='steps-post')
+    plotSettings.set_title('Prenzlau Distric Heating demand - Curtailed energy correlation')
+    plotSettings.set_xlabel('Time')
+    plotSettings.set_ylabel('MW')
+    plt.show()
+
+    # Plot graph Graph curtailment vs. District Heating Demand Schwedt
+    plotData = {'curtailment': timeseries_to_plot['curtailment'], 'Distric_Heating_demand_sch': timeseries_to_plot['Distric_Heating_demand_sch']}
+    plotDataframe = pd.DataFrame(data=plotData)
+    plotSettings = plotDataframe.plot(kind='line', drawstyle='steps-post')
+    plotSettings.set_title('Schwedt Distric Heating demand - Curtailed energy correlation')
+    plotSettings.set_xlabel('Time')
+    plotSettings.set_ylabel('MW')
+    plt.show()
+
+
 if __name__ == "__main__":
 
     # model configuration
     cfg = {
         'data_path': os.path.join(os.path.dirname(__file__), 'data'),
         'date_from': '2016-02-01 00:00:00',
-        'date_to': '2016-02-29 23:00:00',
+        'date_to': '2016-02-01 01:00:00',
         'freq': '60min',
         'scenario_file': 'reference_scenario_curtailment.xlsx',
         'data_file': 'reference_scenario_curtailment_data.xlsx',
