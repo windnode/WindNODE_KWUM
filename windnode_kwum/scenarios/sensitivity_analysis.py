@@ -147,6 +147,8 @@ csvFile.close()
 #Plot heatmap of with the results of each run of the energy system optimization
 sensitivity_heatmap = pd.read_csv(dirpath+"/results/sensitivity_results.csv")
 sensitivity_heatmap = sensitivity_heatmap.pivot(y_param_to_be_varied, x_param_to_be_varied, "result")
-ax = sns.heatmap(sensitivity_heatmap, annot=True, fmt=".1f")
+# The palette color of heatmap can be changed with the following options:
+# cmap="YlGnBu", cmap="Blues", cmap="BuPu", cmap="Greens"
+ax = sns.heatmap(sensitivity_heatmap, cmap="Greens", annot=True, fmt=".1f")
 ax.invert_yaxis()
 plt.show()
