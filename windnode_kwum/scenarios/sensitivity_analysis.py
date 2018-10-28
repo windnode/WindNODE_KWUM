@@ -1,6 +1,9 @@
 import itertools
 import numpy as np
 from windnode_kwum.scenarios import reference_scenario_curtailment
+import pandas as pd
+import matplotlib.pyplot as plt
+import os
 
 # import the tool that modifies the excel sheet. If a problem is shown here, you have to go to:
 # PyCharm -> File -> Default Settings -> Project interpreter python 3.6 -> + (plus symbol) -> openpyxl-> install package
@@ -14,25 +17,34 @@ import csv
 # PyCharm -> File -> Default Settings -> Project interpreter python 3.6 -> + (plus symbol) -> seaborn -> install package
 import seaborn as sns; sns.set()
 
-import pandas as pd
-import matplotlib.pyplot as plt
-import os
+# import SALib to do sensitivity analysis with the sobol method. If a problem is shown here, you have to go to:
+# PyCharm -> File -> Default Settings -> Project interpreter python 3.6 -> + (plus symbol) -> SALib -> install package
+from SALib.analyze import sobol
 
 
 ##### HOW THIS PROGRAM WORKS? #####
 
 # This sensitivity analysis works changing two different parameters already existing in the excel file reference_scenario_curtailment.xls
 # This program do the sensitivity analysis as follows:
-    #  1) The program will open the excel file reference_scenario_curtailment.xlsx and will change the two desired parameters
-    #  2) The changes of the excel file will be saved
-    #  3) The reference_scenario_curtailmente.py will be executed n-run times to get the results of the optimization of the energy system
-    #  4) The results of the optimization and the combination of the parameters will be saved on a csv file called sensitivity_results.csv
+
+# 1) SAMPLING GENERATION:
+    #  1.1) The program will open the excel file reference_scenario_curtailment.xlsx and will change the two desired parameters
+    #  1.2) The changes of the excel file will be saved
+    #  1.3) The reference_scenario_curtailmente.py will be executed n-run times to get the results of the optimization of the energy system
+    #  1.4) The results of the optimization and the combination of the parameters will be saved on a csv file called sensitivity_results.csv
     #     located at /.../WindNODE_KWUM/windnode_kwum/scenarios/results
-    #  5) A heat map will be plot using the data stored on the file sensitivy_results.csv
+    #  1.5) A heat map will be plot using the data stored on the file sensitivy_results.csv
+
+# 2) SENSITIVITY ANALYSIS USING THE SOBOL METHDOLOGY WITH SALIB
+    # ABOUT SALIB: https://salib.readthedocs.io/en/latest/basics.html
+    # ABOUT SOBOL SENSITIVITY ANALYSIS: https://salib.readthedocs.io/en/latest/api.html#sobol-sensitivity-analysis
+        # 2.1) The resutls stored on the file sensitivy_results.csv  will be used as the outputs required by the SOBOL-Sensitivity
+        #      analysis
+        # 2.2) The sobol sensitivity analysis will be shown at the end of the run
 
 
 
-##### DEFINITION OF PARAMETERS AND VALUES FOR SENSITIVITY ANALYSIS #####
+##### DEFINITION OF PARAMETERS AND VALUES FOR SAMPLING #####
 
 # function to create combinations of parameter values while preserving parameter names
 def product_dict(**kwargs):
@@ -47,8 +59,12 @@ def product_dict(**kwargs):
 # Format of the name: 'tab.row.column'
 x_param_to_be_varied = "transformers.P2H_sch.capacity"
 y_param_to_be_varied = "storages.storage_th_sch.nominal capacity"
+# From the flow results of the energy optimization (bus_results), get the flow value needed for the sensitivity analysis.
+# The format is:   "from_bus_name.to_component_name"
+value_to_extract = "bus_flex.P2H_pr"
+
 # Format for the range and step [min, max, step]
-params_to_be_varied = {y_param_to_be_varied: [1, 101, 100], x_param_to_be_varied:[1, 11, 10]}
+params_to_be_varied = {y_param_to_be_varied: [1, 120, 40], x_param_to_be_varied:[1, 12, 4]}
 
 # create ranges
 param_val_ranges = {}
@@ -119,9 +135,7 @@ for run_no, comb in enumerate(param_val_combinations):
     SA_variables = {
         "is_active": True,
         "results": data_from_run,
-        # From the flow results of the energy optimization (bus_results), get the flow value needed for the sensitivity analysis.
-        # The format is:   "from_bus_name.to_component_name"
-        "value_to_extract": "bus_flex.P2H_pr"
+        "value_to_extract": value_to_extract
     }
 
     reference_scenario_curtailment.executeMain(SA_variables=SA_variables)
@@ -145,10 +159,35 @@ csvFile.close()
 
 
 #Plot heatmap of with the results of each run of the energy system optimization
-sensitivity_heatmap = pd.read_csv(dirpath+"/results/sensitivity_results.csv")
-sensitivity_heatmap = sensitivity_heatmap.pivot(y_param_to_be_varied, x_param_to_be_varied, "result")
+sensitivity_heatmap_file = pd.read_csv(dirpath+"/results/sensitivity_results.csv")
+sensitivity_heatmap = sensitivity_heatmap_file.pivot(y_param_to_be_varied, x_param_to_be_varied, "result")
 # The palette color of heatmap can be changed with the following options:
 # cmap="YlGnBu", cmap="Blues", cmap="BuPu", cmap="Greens"
 ax = sns.heatmap(sensitivity_heatmap, cmap="Greens", annot=True, fmt=".1f")
 ax.invert_yaxis()
 plt.show()
+
+
+
+
+problem = {
+  'num_vars': 2,
+  'names': [x_param_to_be_varied, y_param_to_be_varied],
+  # 'bounds': [[0, 10], [0, 100]]
+}
+
+
+sensitivity_analysis_results = sensitivity_heatmap_file.loc[:, "result"].values
+
+
+####### SENSITIVITY ANALYSIS USING THE SOBOL METHDOLOGY WITH SALIB
+
+# Perform analysis
+Si = sobol.analyze(problem, sensitivity_analysis_results, print_to_console=True, calc_second_order=False)
+
+print('')
+print('==================================')
+print('Total-order index: contribution to the output variance caused by the model inputs')
+print(x_param_to_be_varied+' - '+y_param_to_be_varied)
+print(Si['ST'])
+print('==================================')
