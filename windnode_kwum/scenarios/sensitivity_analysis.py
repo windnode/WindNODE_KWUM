@@ -166,28 +166,3 @@ sensitivity_heatmap = sensitivity_heatmap_file.pivot(y_param_to_be_varied, x_par
 ax = sns.heatmap(sensitivity_heatmap, cmap="Greens", annot=True, fmt=".1f")
 ax.invert_yaxis()
 plt.show()
-
-
-
-
-problem = {
-  'num_vars': 2,
-  'names': [x_param_to_be_varied, y_param_to_be_varied],
-  # 'bounds': [[0, 10], [0, 100]]
-}
-
-
-sensitivity_analysis_results = sensitivity_heatmap_file.loc[:, "result"].values
-
-
-####### SENSITIVITY ANALYSIS USING THE SOBOL METHDOLOGY WITH SALIB
-
-# Perform analysis
-Si = sobol.analyze(problem, sensitivity_analysis_results, print_to_console=True, calc_second_order=False)
-
-print('')
-print('==================================')
-print('Total-order index: contribution to the output variance caused by the model inputs')
-print(x_param_to_be_varied+' - '+y_param_to_be_varied)
-print(Si['ST'])
-print('==================================')
