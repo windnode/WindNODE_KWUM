@@ -1,8 +1,10 @@
 # define and setup logger
 import oemof
-
+import pandas as pd
+from glob import glob
 from windnode_kwum.tools.logger import setup_logger
 logger = setup_logger()
+import pdb
 
 import os
 from windnode_kwum.models.basic_model import create_model, simulate
@@ -12,6 +14,7 @@ config.load_config('config_misc.cfg')
 from windnode_kwum.tools.draw import draw_graph
 
 # import oemof modules
+from oemof import outputlib
 from oemof.outputlib import processing, views
 from oemof.graph import create_nx_graph
 
@@ -58,7 +61,7 @@ def run_scenario(cfg):
     return esys, results
 
 
-def plot_results(esys, results, SA_variables):
+def plot_esys_scheme(esys, results, SA_variables):
     """Plots results of simulation
 
     Parameters
@@ -80,94 +83,28 @@ def plot_results(esys, results, SA_variables):
     if not SA_variables['is_active']:
         # print graph of energy system
         graph = create_nx_graph(esys)
-        draw_graph(grph=graph, plot=True, layout='neato', node_size=1000,
+        node_labels = graph.nodes
+        #print(node_labels)
+        #node_labels = [node_label+'test' for node_label in node_labels]
+        #graph.nodes = node_labels
+        plt.rcParams['figure.figsize'] = [15.0, 8.0]
+        draw_graph(edge_labels=True,
+                   grph=graph,
+                   plot=True,
+                   layout='dot',
+                   with_labels=True,
+                   arrows=True,
+                   node_size=3000,
                    node_color=busColorObject)
-
-    # The results of the optimization will be stored in energy_flow_results.csv
-    # The energy_flow_results.csv is located in: WindNODE_KWUM->scenarios->results
-    # Create array of data to be written into the energy_flow_results.csv file
-    csvData = [['Bus from', 'Bus to', "Energy flow"]]
-
-    # Find the current file path for reference_scenario_curtailment.py
-    dirpath = os.getcwd()
-
-
-    # Loop through the buses from the busList to plot them one by one
-    for bus in busList:
-        # get bus from results
-        bus_results = views.node(results, bus.label)
-        bus_results_flows = bus_results['sequences']
-
-        # print some sums for bus
-        print(bus_results['sequences'].sum())
-        print(bus_results['sequences'].info())
-
-
-        if not SA_variables['is_active']:
-            # some example plots for bus
-            ax = bus_results_flows.sum(axis=0).plot(kind='barh')
-            ax.set_title('Sums for optimization period')
-            ax.set_xlabel('Energy (MWh)')
-            ax.set_ylabel('Flow')
-            plt.tight_layout()
-            plt.show()
-
-            bus_results_flows.plot(kind='line', drawstyle='steps-post')
-            plt.show()
-
-            ax = bus_results_flows.plot(kind='bar', stacked=True, linewidth=0, width=1)
-            ax.set_title('Sums for optimization period')
-            ax.legend(loc='upper right', bbox_to_anchor=(1, 1))
-            ax.set_xlabel('Energy (MWh)')
-            ax.set_ylabel('Flow')
-            plt.tight_layout()
-
-            dates = bus_results_flows.index
-            tick_distance = int(len(dates) / 7) - 1
-            ax.set_xticks(range(0, len(dates), tick_distance), minor=False)
-            ax.set_xticklabels(
-                [item.strftime('%d-%m-%Y') for item in dates.tolist()[0::tick_distance]],
-                rotation=90, minor=False)
-            plt.show()
-
-        # Run through the series of bus results
-        bus_results_series = bus_results['sequences'].sum()
-        counter = 0
-        for series_value in bus_results_series:
-            series_index = bus_results_series.index[counter]
-            from_value = series_index[0][0]
-            to_value = series_index[0][1]
-
-            # Extraction of specific values from the energy optimization results to be used on sensitivity_analysis.py
-            if SA_variables['is_active'] and from_value == SA_variables['value_to_extract'].split('.')[0] and to_value == SA_variables['value_to_extract'].split('.')[1]:
-                SA_variables['results'].append(str(series_value))
-
-            # The results from the energy optimization are stored in the energy_flow_results.csv file
-            csvData.append([from_value, to_value, str(series_value)])
-
-            counter = counter + 1
-
-        # Create a csv file for each bus with its results in timeseries form
-        # This file is located in: WindNODE_KWUM->scenarios->results
-        bus_results['sequences'].to_csv(dirpath+'/results/'+bus.label+'_energy_flow_timeseries.csv')
-
-
-    # Create/edit the energy_flow_results.csv file with the data inside the csvData array
-    with open(
-            dirpath+'/results/energy_flow_results.csv',
-            'w') as csvFile:
-        writer = csv.writer(csvFile)
-        writer.writerows(csvData)
-    csvFile.close()
 
 
 def executeMain(SA_variables):
     cfg = {
         'data_path': os.path.join(os.path.dirname(__file__), 'data'),
-        'date_from': '2016-02-01 00:00:00',
-        'date_to': '2016-02-10 01:00:00',
+        'date_from': '2016-02-08 23:00:00',
+        'date_to': '2016-02-09 01:00:00',
         'freq': '60min',
-        'scenario_file': 'reference_scenario_curtailment.xlsx',
+        'scenario_file': 'pth.xlsx',
         'data_file': 'reference_scenario_curtailment_data.xlsx',
         'results_path': os.path.join(config.get_data_root_dir(),
                                      config.get('user_dirs',
@@ -178,11 +115,11 @@ def executeMain(SA_variables):
     }
 
     esys, results = run_scenario(cfg=cfg)
-
-    plot_results(esys=esys,
+    plot_esys_scheme(esys=esys,
                  results=results, SA_variables=SA_variables)
 
     logger.info('Done!')
+   # pdb.set_trace()
 
 
 if __name__ == "__main__":

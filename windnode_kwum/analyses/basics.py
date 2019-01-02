@@ -9,7 +9,7 @@ from windnode_kwum.tools import config
 import os
 import oemof.solph as solph
 from oemof.outputlib import views
-
+import oemof.outputlib as outputlib
 
 def get_flow(label, inout, i=0):
     """get in- or outputflow of a component
@@ -76,6 +76,20 @@ esys.restore(dpath=path,
              filename=file)
 
 results = esys.results
+#print(results)
+
+string_results = outputlib.views.convert_keys_to_strings(results)
+print(string_results.keys())
+
+node_results_bus_el = outputlib.views.node(results, 'bus_el')
+df = node_results_bus_el['sequences']
+#print(df.head())
+
+node_results_chp_sch = outputlib.views.node(results, 'chp_sch')
+seq_chp = node_results_chp_sch['sequences']
+print(seq_chp.head())
+
+
 
 ############### analyse general results:
 bus_el_results = views.node(results, 'bus_el')
@@ -92,7 +106,7 @@ energy_sums = bus_el_results_flows.sum(axis=0)
 # spot_market_in = bus_el_results_flows[(('bus_el','spot_market'),'flow')]
 # alternativ:
 spot_market_in = get_energy_flow_sequence(
-                    results, 'bus_el', 'bus_el','spot_market')
+                    results, 'bus_el')
 
 # get flow object of spotmarket_inflow (in order to read out variable_costs)
 spot_market_inflow = get_flow('spot_market', 'in')
@@ -105,3 +119,22 @@ revenuesum = spot_market_revenues.sum()
 
 # TODO: implement calculation of compensation for curtailment
 # curtailment = bus_el_results_flows[(('bus_el','curtailment'),'flow')]
+
+def get_cost_flow_sequence(variable_costs, bus, from_comp, to_comp):
+    """get in- or output sequence of a components energy flow
+
+    Parameters
+    ----------
+    results : dataframe(?) results
+    bus : string (name of bus)
+    from_comp : string (name of component, where the energy comes from)
+    to_comp : string (name of component, where the energy goes to)
+    Returns
+    -------
+    sequence of nergy flow
+    """
+    bus_costs = views.node(variable_costs, bus)
+    bus_costs_flows = bus_costs['sequences']
+    costs_flow_sequence = bus_costs_flows[((from_comp,to_comp),'flow')]
+    print("cost flow",costs_flow_sequence)
+    return costs_flow_sequence
