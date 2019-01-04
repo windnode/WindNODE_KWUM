@@ -130,15 +130,16 @@ def create_nodes(nd=None, datetime_index = list()):
     for i, t in nd['transformers'].iterrows():
         if t['active']:
             # set static inflow values
-            inflow_args = {'variable_costs': t['variable_costs']}
+            inflow_args = {'variable_costs': t['variable_costs_in']}
             outflow_args = {'nominal_value': t['capacity'],
-                            'fixed': t['fixed']}
+                            'fixed': t['fixed'],
+                           'variable_costs': t['variable_costs_out']}
             # get time series for inflow of transformer
             # Parameters pre-set in outflow_args will be overwritten if a time series is available
             for col in nd['timeseries'].columns.values:
                 if col.split('.')[0] == t['label']:
                     outflow_args[col.split('.')[1]] = nd['timeseries'][col][datetime_index]
-                    inflow_args[col.split('.')[1]] = nd['timeseries'][col][datetime_index]
+                    #inflow_args[col.split('.')[1]] = nd['timeseries'][col][datetime_index]
             # create
 
             print(t['label'],inflow_args)
@@ -149,7 +150,7 @@ def create_nodes(nd=None, datetime_index = list()):
                     label=t['label'],
                     inputs={busd[t['from']]: solph.Flow(**inflow_args)},
                     outputs={busd[t['to']]: solph.Flow(**outflow_args)},
-                    conversion_factors={busd[t['from']]: t['efficiency']})
+                    conversion_factors={busd[t['to']]: t['efficiency']})
             )
 
     # Create Storages objects from 'storages' tab; using GenericStorage component
@@ -163,13 +164,13 @@ def create_nodes(nd=None, datetime_index = list()):
             # get time series for inflow of transformer
             # Parameters pre-set in outflow_args will be overwritten if a time series is available
             #for col in ['batt.input_costs']:
-            for col in nd['timeseries'].columns.values:
+            #for col in nd['timeseries'].columns.values:
                 # print(nd['timeseries'].columns.values)
-                if col.split('.')[0] == s['label']:
-                    inflow_args[col.split('.')[1]] = nd['timeseries'][col][datetime_index]
+                #if col.split('.')[0] == s['label']:
+                    #inflow_args[col.split('.')[1]] = nd['timeseries'][col][datetime_index]
 
-            for col in ['batt.output_costs']:
-                outflow_args[col.split('.')[1]] = nd['timeseries'][col][datetime_index]
+            #for col in ['batt.output_costs']:
+                #outflow_args[col.split('.')[1]] = nd['timeseries'][col][datetime_index]
 
             print(s['label'], inflow_args)
             print(s['label'], outflow_args)
