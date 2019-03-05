@@ -101,11 +101,11 @@ def plot_esys_scheme(esys, results, SA_variables):
 def executeMain(SA_variables):
     cfg = {
         'data_path': os.path.join(os.path.dirname(__file__), 'data'),
-        'date_from': '2016-02-08 23:00:00',
-        'date_to': '2016-02-09 01:00:00',
+        'date_from': '2016-01-01 00:00:00',
+        'date_to': '2016-01-31 23:00:00',
         'freq': '60min',
-        'scenario_file': 'pth.xlsx',
-        'data_file': 'reference_scenario_curtailment_data.xlsx',
+        'scenario_file': '2016_2c_pth_FLEX_1_SZENARIO.xlsx',
+        'data_file': 'reference_scenario_curtailment_data_2016.xlsx',
         'results_path': os.path.join(config.get_data_root_dir(),
                                      config.get('user_dirs',
                                                 'results_dir')),
@@ -116,7 +116,7 @@ def executeMain(SA_variables):
 
     esys, results = run_scenario(cfg=cfg)
     plot_esys_scheme(esys=esys,
-                 results=results, SA_variables=SA_variables)
+                results=results, SA_variables=SA_variables)
 
     logger.info('Done!')
    # pdb.set_trace()

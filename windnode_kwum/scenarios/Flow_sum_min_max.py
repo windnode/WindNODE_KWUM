@@ -39,6 +39,11 @@ csvData_max = [["Max [MW]"]]
 # Find the current file path for reference_scenario_curtailment.py
 dirpath = os.getcwd()
 
+# delete all csv files
+filelist = [ f for f in os.listdir(dirpath + '/results') if f.endswith(".csv") ]
+for f in filelist:
+    os.remove(os.path.join(dirpath + '/results', f))
+
 for bus in busList:
     # get bus from results
     bus_results = views.node(results, bus.label)

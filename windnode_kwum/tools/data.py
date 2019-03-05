@@ -99,6 +99,7 @@ def oemof_nodes_from_excel(scenario_file,
     # read scenario data
     nodes_data = {'buses': xls_s.parse('buses', header=header_lines),
                   'chp': xls_s.parse('chp', header=header_lines),
+                  'chp_trans': xls_s.parse('chp_trans', header=header_lines),
                   'commodity_sources': xls_s.parse('commodity_sources', header=header_lines),
                   'transformers': xls_s.parse('transformers', header=header_lines),
                   'renewables': xls_s.parse('renewables', header=header_lines),
