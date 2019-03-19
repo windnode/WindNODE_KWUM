@@ -310,7 +310,6 @@ def create_model(cfg):
                                config.get('user_dirs', 'data_dir'),
                                cfg['data_file'])
         )
-
     # check if selected timerange in cfg is part of data's timerange
     if any([parse(_) not in nd['timeseries'].index for _ in [cfg['date_from'], cfg['date_to']]]):
         msg = 'Selected timerange is not included in data\'s timerange!'
@@ -332,7 +331,7 @@ def create_model(cfg):
     return esys
 
 
-def simulate(esys, solver='cbc', verbose=True):
+def simulate(esys, solver='cbc', verbose=False):
     """Optimize energy system
 
     Parameters
