@@ -179,8 +179,8 @@ def create_nodes(nd=None, datetime_index = list()):
             nodes.append(
                 solph.components.GenericStorage(
                     label=s['label'],
-                    inputs={busd[s['bus']]: solph.Flow(**inflow_args)},
-                    outputs={busd[s['bus']]: solph.Flow(**outflow_args)},
+                    inputs={busd[s['bus_in']]: solph.Flow(**inflow_args)},
+                    outputs={busd[s['bus_out']]: solph.Flow(**outflow_args)},
                     nominal_capacity=s['nominal capacity'],
                     capacity_loss=s['capacity loss'],
                     initial_capacity=s['initial capacity'],
@@ -331,7 +331,7 @@ def create_model(cfg):
     return esys
 
 
-def simulate(esys, solver='cbc', verbose=False):
+def simulate(esys, solver='cbc', verbose=True):
     """Optimize energy system
 
     Parameters
@@ -352,7 +352,7 @@ def simulate(esys, solver='cbc', verbose=False):
     # solve it
     om.solve(solver=solver,
              solve_kwargs={'tee': verbose,
-                           'keepfiles': True})
+                           'keepfiles': False})
         # write LP file
     filename = os.path.join(os.path.dirname(__file__), 'KWUM.lp')
     om.write(filename, io_options={'symbolic_solver_labels': True})
