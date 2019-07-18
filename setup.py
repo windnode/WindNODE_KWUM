@@ -41,14 +41,12 @@ setup(
         'xlrd >=0.1.1', 'openpyxl'
         #'geopy >= 1.11.0, <= 1.11.0'
     ],
-    # package_data={
-    #     'config': [
-    #         os.path.join('config',
-    #                      'config_system'),
-    #         os.path.join('config',
-    #                      '*.cfg')
-    #     ]
-    #     },
+    package_data={
+        'windnode_kwum': [
+            os.path.join('config',
+                         'config_system'),
+            os.path.join('config',
+                         '*.cfg')]},
     cmdclass={
       'install': InstallSetup}
 )

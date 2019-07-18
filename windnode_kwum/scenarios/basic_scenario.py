@@ -34,7 +34,7 @@ def run_scenario(cfg):
     esys = create_model(cfg=cfg)
 
     results = simulate(esys=esys,
-                       solver=cfg['solver'])
+                       solver=cfg['solver'],tee=True)
 
     esys.results = results
 
@@ -80,8 +80,8 @@ def plot_results(esys, results):
     bus_th_results_flows = bus_th_results['sequences']
 
     # print some sums for bus_el
-    print(bus_el_results['sequences'].sum())
-    print(bus_el_results['sequences'].info())
+    #print(bus_el_results['sequences'].sum())
+    #print(bus_el_results['sequences'].info())
 
     # some example plots for bus_el
     ax = bus_el_results_flows.sum(axis=0).plot(kind='barh')
@@ -124,7 +124,7 @@ if __name__ == "__main__":
                                                 'results_dir')),
         'solver': 'cbc',
         'verbose': True,
-        'dump': True
+        'dump': False
     }
 
     esys, results = run_scenario(cfg=cfg)

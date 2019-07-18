@@ -124,7 +124,7 @@ if __name__ == "__main__":
                                                 'results_dir')),
         'solver': 'cbc',
         'verbose': True,
-        'dump': True
+        'dump': False
     }
 
     esys, results = run_scenario(cfg=cfg)
