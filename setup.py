@@ -38,7 +38,10 @@ setup(
         #'pypsa >=0.10.0, <=0.10.0',
         'pyproj >=1.9.5.1',
         'requests >=2.18.4',
-        'xlrd >=0.1.1', 'openpyxl'
+        'xlrd >=0.1.1',
+        'openpyxl >=2.5.8',
+        'pypiwin32 >=219',
+        'matplotlib	>=2.2.3'
         #'geopy >= 1.11.0, <= 1.11.0'
     ],
     package_data={
