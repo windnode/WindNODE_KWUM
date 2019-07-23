@@ -32,7 +32,7 @@ setup(
     description='A regional power plant simulation model',
     install_requires = [
         'oemof >=0.1.4',
-        'oemof.db >=0.0.5',
+        #'oemof.db >=0.0.5',
         #'shapely >= 1.5.12, <= 1.5.12',
         'pandas >=0.20.3',
         #'pypsa >=0.10.0, <=0.10.0',
