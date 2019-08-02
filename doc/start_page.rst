@@ -12,7 +12,7 @@ Against the background of the further decarbonisation of the energy sector via r
     :width: 500pt
     :alt: Compensation payments caused by feed-in management measures in Germany
 
-    Compensation payments caused by feed-in management measures in Germany
+Compensation payments caused by feed-in management measures in Germany
 
 **WindNode Project**
 
