@@ -63,7 +63,7 @@ A central secondary condition states that the heat demand of the FW networks P_t
 
 The operating costs of the heating plant consist of the procurement costs from the natural gas network C_(cs_gas ) and the variable operating costs C_(O&M_var ).
 
-.. image:: pictures/formulas_heat_hp.png
+.. image:: pictures/formulas_hp.png
 
 The heat generation of the heating plant P_(〖th〗_out ) depends on the fuel input P_(〖Br〗_in ) and the efficiency η_th.
 
