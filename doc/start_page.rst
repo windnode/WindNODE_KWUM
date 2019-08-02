@@ -12,6 +12,8 @@ Against the background of the further decarbonisation of the energy sector via r
     :width: 500pt
     :alt: Compensation payments caused by feed-in management measures in Germany
 
+    Compensation payments caused by feed-in management measures in Germany
+
 **WindNode Project**
 
 In December 2016, the SINTEG funding programme was launched to undertake some of the challenges of the increasing share of electricity generated from renewable sources in the energy system. This programme is divided into five showcases regions; each of them has different goals and challenges. One of the five showcases is the WindNODE project, which takes place on the northeast of Germany, coincidentally with the area controlled by the transmission system operator 50Herzt (excluding Hamburg) [#]_.
