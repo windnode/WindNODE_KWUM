@@ -26,6 +26,39 @@ The basic structure of the energy system under consideration and the integration
 
 Schematic model representation
 
+**Objective function**
+
+In the KWUM model, optimisation is achieved by minimising the annual operating costs of the individual components of the energy system. The target function to be minimized is therefore:
+
+.. image:: pictures/objective_function.png
+    :alt: Objective function
+
+
+**Further modeling equiations**
+
+*Wind power generation and curtailment*
+
+
+The synthetic time series of the wind generation used in the model corresponds to the original generation measurement data P_el (t,Wind_using ) outside the feed-in management inserts (Curtailment=0) and to the virtual generation load curve P_el (t,Wind_virt ) within the control (Curtailment>0).
+
+.. image:: pictures/formulas_wind.png
+
+
+FlexStrom is defined in the model as wind power, which is either regulated by feed-in management applications or which is generated at times of negative day-ahead market prices. This FlexStrom can be used either by the FlexOptionen for storage or energy conversion or is otherwise abgesgegelt (P_el (t, curtailment)).
+
+.. image:: pictures/formulas_flex.png
+
+The costs of the FlexStrombezugs correspond to the Day-ahead market price, if this is negative at the time. Otherwise no costs result, since it concerns river, which would have to be abzuregeln in the reality.
+
+.. image:: pictures/formulas_flex_costs.png
+
+
+*District heating demand*
+
+A central secondary condition states that the heat demand of the FW networks P_th_demand must be covered by the available heat generation plants in each time step.
+
+.. image:: pictures/formulas_heat_demand.png
+
 
 .. [#]  ROMERO GARCÍA 2018
 .. [#]  HILPERT u. a. 2018
