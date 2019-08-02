@@ -8,6 +8,7 @@ The three basic scenarios are divided into seven different scenario variations w
 In order to derive statements about possible future developments, all scenarios and scenario variations are examined for the years 2035 and 2050 in addition to the current status of 2016. These annual references are based on important transformation processes in electricity and heat supply [#]_ , as well as on milestones of the climate targets [#]_ . In the future, an increase in the supply of wind power is expected, including the amount of regulation, while the demand for heat will decrease due to the declining population and the increasing energy-efficient refurbishment. Furthermore, a rising gas price, rising NNE and a reduction of the EEG levy as well as different technology-specific development potentials are expected. The following figure shows the scenario structure once again schematically. This results in a total of 63 individual scenarios.
 
 .. image:: pictures/scenarios_overview.png
+    :height: 400
 
 The status quo scenario represents the current regulatory framework.
 In the SINTEG scenario, the distinction made in the SINTEG Regulation between grid and market electricity purchases and general electricity purchases is applied. In the KWUM model, this is illustrated by a differentiation between the unrestricted purchase of "grid electricity" and "FlexStrom", which depends on the EinsMan and the negative day-ahead market price.
