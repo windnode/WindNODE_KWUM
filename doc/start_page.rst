@@ -9,7 +9,6 @@ Against the background of the further decarbonisation of the energy sector via r
 
 
 .. image:: pictures/einsman_entschaedigungszahlungen.png
-    :width: 500pt
     :alt: Compensation payments caused by feed-in management measures in Germany
 
 Compensation payments caused by feed-in management measures in Germany
@@ -27,7 +26,6 @@ The Uckermark is a mainly rural region in the northeast of Brandenburg on the bo
 The focus region under consideration is located in the north-eastern part of the Uckermark and covers 1470 km², about half of the Uckermark [#]_ . The company Enertrag, the largest operator of wind turbines on site, provided the measurement data required for this investigation with regard to wind generation and control [#]_ . Since their plants extend over the postcode areas around 16303, 16306, 16307, 17291 and 17326, the focus region was defined on this basis (see Figure 2.1).
 
 .. image:: pictures/focus_region.png
-    :width: 500pt
     :alt: Geographical classification of the focus region
 Geographical classification of the focus region
 
