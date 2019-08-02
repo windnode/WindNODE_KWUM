@@ -8,7 +8,7 @@ In order to make better use of the existing capacities of the renewable energy p
 Against the background of the further decarbonisation of the energy sector via renewables, it is therefore necessary to reduce the regulatory aspects that hinder flexibility and to create incentives that enable a cost-efficient, secure and comprehensive integration of renewables [#]_ . This paper therefore aims to analyse the deployment potential of different flex options under three different regulatory frameworks.
 
 
-.. image:: pictures/einsman entschaedigungszahlungen.png
+.. image:: pictures/einsman_entschaedigungszahlungen.png
    :width: 400pt
 
 **WindNode Project**
