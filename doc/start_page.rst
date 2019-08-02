@@ -29,7 +29,7 @@ The focus region under consideration is located in the north-eastern part of the
 .. image:: pictures/focus_region.png
     :width: 500pt
     :alt: Geographical classification of the focus region
-
+Geographical classification of the focus region
 
 See :ref:`quickstart` for the first steps. A deeper guide is provided in :ref:`usage-details`.
 We explain in detail how things are done in :ref:`features-in-detail`.
