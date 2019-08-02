@@ -27,6 +27,7 @@ The basic structure of the energy system under consideration and the integration
 Schematic model representation
 
 
-.. [#] ROMERO GARCÍA 2018
+.. [#]  ROMERO GARCÍA 2018
 .. [#]  HILPERT u. a. 2018
 .. [#]  The CBC Solver is Used in the KWUM Model
+.. [#] ALBERT, DODERER, MATTHES, SCHÄFER-STRADOWSKY & STEFFENSEN 2018, S. 51
