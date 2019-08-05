@@ -13,7 +13,7 @@ The following table shows the generation capacities by energy source and postal 
 
 Capacity of power generation plants in MW by energy source and postcode in the focus region [#]_
 
-Timerows of generation and cur-tailment of the wind turbines
+Timerows of generation and curtailment of the wind turbines
 ------------------------------------------------------------
 
 In the following figure, the normalized real (blue) and synthetic (orange) generation load curves are plotted as areas over the year and the deviation signal (orange line). The visible orange area indicates the curtailed part of the wind power work that is available to the FlexOptions within the KWUM model. In total, this percentage is 14.33 % of the synthetic wind power work witch is adjusted from the curtailment.
@@ -33,7 +33,7 @@ Since no further plans for further grid expansion have been made so far and a co
 
 .. image:: pictures/tab_wind_gen_curt.png
 
-Generation and curtailed quantities of wind turbines in the focus region
+Generation and curtailed quantities of wind turbines in the focus region [#]_
 
 Thermal plants in the district heat-ing systems
 ------------------------------------------------------------
@@ -66,6 +66,30 @@ The methodical procedure as well as the sources used for the compilation of the 
 
 Procedure for generating the FW consumption load profiles [#]_
 
-Within the model, heat losses are taken into account indirectly by adding them evenly to consumption throughout the year [#]_ . In Prenzlau, 14.00 % network losses are assumed, in Schwedt 18.34 % [#]_ .
+Within the model, heat losses are taken into account indirectly by adding them evenly to consumption throughout the year [#]_ . In Prenzlau, 14.00 %  network losses are assumed [#]_ , in Schwedt 18.34 % [#]_ .
 The maximum consumption in the respective heating network can be derived from the generated heat load profiles. This results in a peak load of 11.461 MWth in Prenzlau and 47.397 MWth in Schwedt, which is comparable to the real peak heat load of 52.000 MWth [#]_ in 2016. For the Prenzlauer FW network, however, there are no comparable values available.
+
+
+.. [#] BNETZA 2018
+.. [#]  Own representation according to 50 HERTZ 2018; BNETZA 2018
+.. [#] Own representation according to ENERTRAG 2018
+.. [#] MÜLLER u. a. 2018, S. 1
+.. [#]   MÜLLER 2018
+.. [#]   ENERTRAG 2018
+.. [#]   KONDZIELLA u. a. 2019, S. 18
+.. [#]   Own representation
+.. [#]   Own representation
+.. [#]   Own representation
+.. [#]   OEMOF DEVELOPING GROUP 2018
+.. [#]   HELLWIG 2003
+.. [#]   BGW 2006
+.. [#]   FAKTOR-I3 GMBH 2018
+.. [#]   ZENSUS 2011 2011
+.. [#]   DEUTSCHER WETTERDIENST 2018
+.. [#]   BGW 2006, S. 42
+.. [#] Own presentation; sources used: FAKTOR-I3 GMBH 2018; LOGA, STEIN, DIEFENBACH & BORN 2015; OEMOF DEVELOPING GROUP 2018; ZENSUS 2011 2011
+.. [#]   KONSTANTIN 2018, S. 32
+.. [#]   B.B.S.M. 2013, S. 31
+.. [#]  STADTWERKE SCHWEDT GMBH 2018
+.. [#]  STADTWERKE SCHWEDT GMBH 2017
 
