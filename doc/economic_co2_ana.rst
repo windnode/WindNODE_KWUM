@@ -80,7 +80,7 @@ The heat production costs of the FW network 〖WGK〗_Netz are calculated by div
 The WGK of the grid refer to the heat share provided by gas-fired CHP, peak load heating plants and flexibility options. The renewable plants in the FW grid Prenzlau (component: CHP EE Prenzlau) as well as the external heat generation of the PCK refinery in Schwedt (component: CHP external Schwedt) are not substituted in the model and therefore have no influence on the use of the Flex options. Therefore, an economic analysis of these plants is not carried out.
 
 
-.. image:: pictures/formula_lcoh
+.. image:: pictures/formula_lcoh.png
 
 
 CO2 emissions
