@@ -1,8 +1,0 @@
-Release v0.0.1
-==============
-
-There has been no release yet.
-
-Changes
--------
-
