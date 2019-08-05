@@ -1,7 +1,8 @@
 WindNODE_KWUM
 =============
 
-**Objective of the model**
+Objective of the model
+----------------------
 
 In regions with high RES shares, the RES electricity that cannot be transported off the grid or used by local consumers is regulated by the feed-in scheme (EinsMan), whereby theoretically producible RES electricity is lost unused [#]_ . In addition, this unproduced "surplus" electricity is remunerated to the plant operators in the form of compensation payments. (see Figure 1.1). The resulting increase in the costs of the EinsMan is ultimately borne by the end consumer through higher grid usage fees (NNE) [#]_ . Finally, a decreasing acceptance of the energy system transformation within the population is to be expected due to the rising costs, which could endanger the achievement of the climate targets in the long term [#]_ .
 In order to make better use of the existing capacities of the renewable energy plants, the "surplus" electricity could be stored temporarily on the one hand and used within other sectors (sector coupling) on the other [#]_ . However, it is above all the current regulatory framework with its system of taxes, network charges and allocations that prevents such use [#]_ .
@@ -13,14 +14,16 @@ Against the background of the further decarbonisation of the energy sector via r
 
 Compensation payments caused by feed-in management measures in Germany
 
-**WindNode Project**
+WindNode Project
+----------------
 
 In December 2016, the SINTEG funding programme was launched to undertake some of the challenges of the increasing share of electricity generated from renewable sources in the energy system. This programme is divided into five showcases regions; each of them has different goals and challenges. One of the five showcases is the WindNODE project, which takes place on the northeast of Germany, coincidentally with the area controlled by the transmission system operator 50Herzt (excluding Hamburg) [#]_.
 The Reiner Lemoine Institute (RLI) is a partner of the joint research project WindNODE. The RLI participates in the analysis and comparison of two different regions: Uckermark and Anhalt. These research regions use different approaches for the integration of renewable energy, focusing on the use of flexibility options [#]_ . The research work of RLI in the Uck-ermark district is the analysis of business models of flexibility options; the estimation of the potential of the SINTEG-V regulation; and further possible regulations on the energy sec-tor [#]_.
 One wind farm operator in the Uckermark district is ENERTRAG AG, who is also part of the WindNODE project. This enterprise has provided some data used in this research paper.
 
 
-**Study Region in the Uckermark district**
+Study Region in the Uckermark district
+--------------------------------------------
 
 The Uckermark is a mainly rural region in the northeast of Brandenburg on the border to Mecklenburg-Western Pomerania. The population density of 67.68 inhabitants per km² is well below the Brandenburg average of 84.91 [#]_ .
 The focus region under consideration is located in the north-eastern part of the Uckermark and covers 1470 km², about half of the Uckermark [#]_ . The company Enertrag, the largest operator of wind turbines on site, provided the measurement data required for this investigation with regard to wind generation and control [#]_ . Since their plants extend over the postcode areas around 16303, 16306, 16307, 17291 and 17326, the focus region was defined on this basis (see Figure 2.1).
