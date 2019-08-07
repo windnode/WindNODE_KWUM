@@ -67,7 +67,7 @@ def oep_get_data(schema, table, columns=[], conditions=[], order=''):
 
 
 def oemof_nodes_from_excel(scenario_file,
-                           data_file,
+                           #data_file,
                            header_lines=0):
     """Import scenario data from Excel file
 
@@ -89,16 +89,17 @@ def oemof_nodes_from_excel(scenario_file,
     if not scenario_file or not os.path.isfile(scenario_file):
         logger.exception('Scenario Excel file {} not found.'
                          .format(scenario_file))
-    if not data_file or not os.path.isfile(data_file):
-        logger.exception('Data Excel file {} not found.'
-                         .format(data_file))
+#    if not data_file or not os.path.isfile(data_file):
+#        logger.exception('Data Excel file {} not found.'
+#                         .format(data_file))
 
     xls_s = pd.ExcelFile(scenario_file)
-    xls_d = pd.ExcelFile(data_file)
+#    xls_d = pd.ExcelFile(data_file)
 
     # read scenario data
     nodes_data = {'buses': xls_s.parse('buses', header=header_lines),
                   'chp': xls_s.parse('chp', header=header_lines),
+                  'chp_trans': xls_s.parse('chp_trans', header=header_lines),
                   'commodity_sources': xls_s.parse('commodity_sources', header=header_lines),
                   'transformers': xls_s.parse('transformers', header=header_lines),
                   'renewables': xls_s.parse('renewables', header=header_lines),
@@ -113,26 +114,25 @@ def oemof_nodes_from_excel(scenario_file,
     nodes_data['timeseries'].index = pd.to_datetime(nodes_data['timeseries'].index)
 
     # read further (non-public) data from data file
-    timeseries_d = xls_d.parse('time_series', header=header_lines)
-    timeseries_d.set_index('timestamp', inplace=True)
-    timeseries_d.index = pd.to_datetime(timeseries_d.index)
+#    timeseries_d = xls_d.parse('time_series', header=header_lines)
+#    timeseries_d.set_index('timestamp', inplace=True)
+#    timeseries_d.index = pd.to_datetime(timeseries_d.index)
 
     # join datasets
     # ONLY JOIN OF TIMESERIES IS IMPLEMENTED RIGHT NOW
-    if not nodes_data['timeseries'].index.equals(timeseries_d.index):
-        msg = 'Timesteps of timeseries from scenario file and data file do not match!'
-        logger.error(msg)
-        raise ValueError(msg)
-    else:
-        nodes_data['timeseries'] = pd.merge(nodes_data['timeseries'],
-                                            timeseries_d,
-                                            how='left',
-                                            right_index=True,
-                                            left_index=True)
+#    if not nodes_data['timeseries'].index.equals(timeseries_d.index):
+#        msg = 'Timesteps of timeseries from scenario file and data file do not match!'
+#        logger.error(msg)
+#        raise ValueError(msg)
+#    else:
+#        nodes_data['timeseries'] = pd.merge(nodes_data['timeseries'],
+#                                            timeseries_d,
+#                                            how='left',
+#                                            right_index=True,
+#                                            left_index=True)
 
     logger.info('Data from Excel file {} imported.'
                 .format(scenario_file))
-    logger.info('Data from Excel file {} imported.'
-                .format(data_file))
-
+#    logger.info('Data from Excel file {} imported.'
+#                .format(data_file))
     return nodes_data

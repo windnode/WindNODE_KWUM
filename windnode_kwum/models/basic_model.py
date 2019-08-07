@@ -1,10 +1,10 @@
 import logging
-
 import math
 
 logger = logging.getLogger('windnode_kwum')
 
 import oemof.solph as solph
+from oemof.solph import NonConvex
 import pandas as pd
 import os
 from dateutil.parser import parse
@@ -68,7 +68,7 @@ def create_nodes(nd=None, datetime_index = list()):
         if cs['active']:
             # set static outflow values from the commodity sources tab in the excel file
             outflow_args = {'nominal_value': cs['capacity'],
-                            'variable_costs': cs['variable costs']}
+                            'variable_costs': cs['variable_costs_out']}
 
             # get time series for node and parameter
             # Parameters pre-set in outflow_args will be overwritten if a time series is available
@@ -76,10 +76,13 @@ def create_nodes(nd=None, datetime_index = list()):
                 if col.split('.')[0] == cs['label']:
                     outflow_args[col.split('.')[1]] = nd['timeseries'][col][datetime_index]
 
+
             nodes.append(
                 solph.Source(label=cs['label'],
                              outputs={busd[cs['to']]: solph.Flow(**outflow_args)})
             )
+        print(cs['label'])
+        print(outflow_args)
 
     # Create Source objects with fixed time series from 'renewables' table
     for i, re in nd['renewables'].iterrows():
@@ -92,47 +95,57 @@ def create_nodes(nd=None, datetime_index = list()):
                 if col.split('.')[0] == re['label']:
                     outflow_args[col.split('.')[1]] = nd['timeseries'][col][datetime_index]
 
+
             # create
             nodes.append(
                 solph.Source(label=re['label'],
                              outputs={busd[re['to']]: solph.Flow(**outflow_args)})
             )
+        print(re['label'])
+        print(outflow_args)
 
     # Create Sink objects with fixed time series from 'demand' table
     for i, de in nd['demand'].iterrows():
         if de['active']:
             # set static inflow values
             inflow_args = {'nominal_value': de['nominal value'],
-                           'fixed': de['fixed']}
+                           'fixed': de['fixed'],
+                           'variable_costs': de['variable_costs_in']}
 
             # look for the fixed variable_costs fixture in demand table
-            if not math.isnan(de['variable costs']):
-                inflow_args['variable_costs'] = de['variable costs']
+            #if not math.isnan(de['variable_costs_in']):
+            #    inflow_args['variable_costs'] = de['variable_costs_in']
 
             # get time series for node and parameter
             for col in nd['timeseries'].columns.values:
                 if col.split('.')[0] == de['label']:
                     inflow_args[col.split('.')[1]] = nd['timeseries'][col][datetime_index]
 
+
             # create
             nodes.append(
                 solph.Sink(label=de['label'],
                            inputs={busd[de['from']]: solph.Flow(**inflow_args)})
             )
-
+        print(de['label'])
+        print(inflow_args)
     # Create Transformer objects from 'transformers' table
     for i, t in nd['transformers'].iterrows():
         if t['active']:
             # set static inflow values
-            inflow_args = {'variable_costs': t['variable input costs']}
+            inflow_args = {'variable_costs': t['variable_costs_in']}
             outflow_args = {'nominal_value': t['capacity'],
-                            'fixed': t['fixed']}
+                            'fixed': t['fixed'],
+                           'variable_costs': t['variable_costs_out']}
             # get time series for inflow of transformer
             # Parameters pre-set in outflow_args will be overwritten if a time series is available
             for col in nd['timeseries'].columns.values:
                 if col.split('.')[0] == t['label']:
                     outflow_args[col.split('.')[1]] = nd['timeseries'][col][datetime_index]
+                    #inflow_args[col.split('.')[1]] = nd['timeseries'][col][datetime_index]
             # create
+
+
             nodes.append(
                 solph.Transformer(
                     label=t['label'],
@@ -141,24 +154,52 @@ def create_nodes(nd=None, datetime_index = list()):
                     conversion_factors={busd[t['to']]: t['efficiency']})
             )
 
+            print(t['label'])
+            #print("transformer inflow args")
+            #print(inflow_args)
+            print("transformer outflow args")
+            print(outflow_args)
+
+
     # Create Storages objects from 'storages' tab; using GenericStorage component
     for i, s in nd['storages'].iterrows():
         if s['active']:
+            # set static inflow values
+            inflow_args = {'variable_costs': s['variable_costs_in'],
+                           'nominal_value': s['nominal input value'],}
+            outflow_args = {'variable_costs': s['variable_costs_out'],
+                            'nominal_value': s['nominal output value'],}
+            # get time series for inflow of transformer
+            # Parameters pre-set in outflow_args will be overwritten if a time series is available
+            #for col in ['batt.input_costs']:
+            #for col in nd['timeseries'].columns.values:
+                #print(nd['timeseries'].columns.values)
+                #if col.split('.')[0] == s['label']:
+                    #outflow_args[col.split('.')[1]] = nd['timeseries'][col][datetime_index]
+
+            #for col in ['batt.output_costs']:
+                #outflow_args[col.split('.')[1]] = nd['timeseries'][col][datetime_index]
+
+
+
             nodes.append(
                 solph.components.GenericStorage(
                     label=s['label'],
-                    inputs={busd[s['bus']]: solph.Flow(
-                            variable_costs=s['input costs'])},
-                    outputs={busd[s['bus']]: solph.Flow(
-                            variable_costs=s['output costs'])},
+                    inputs={busd[s['bus_in']]: solph.Flow(**inflow_args)},
+                    outputs={busd[s['bus_out']]: solph.Flow(**outflow_args)},
                     nominal_capacity=s['nominal capacity'],
                     capacity_loss=s['capacity loss'],
                     initial_capacity=s['initial capacity'],
                     capacity_max=s['capacity max'],
-                    capacity_min=s['capacity min'],
+                    #capacity_min=s['capacity min'],
                     inflow_conversion_factor=s['efficiency inflow'],
                     outflow_conversion_factor=s['efficiency outflow'])
             )
+            #print(s['label'])
+            #print("storage inflow args")
+            #print(inflow_args)
+            #print("storage outflow args")
+            #print(outflow_args)
 
     # Create power lines between 2 buses from 'powerlines' tab
     for i, p in nd['powerlines'].iterrows():
@@ -193,19 +234,59 @@ def create_nodes(nd=None, datetime_index = list()):
             nodes.append(
                 solph.components.GenericCHP(label=c['label'],
                                             fuel_input={busd[c['from']]: solph.Flow(
-                                                H_L_FG_share_max=[0.18 for p in range(0, periods)],
-                                                H_L_FG_share_min=[0.41 for p in range(0, periods)])},
+                                                H_L_FG_share_max=[c['flue_gas_loss_at_max_heat'] for p in range(0, periods)],
+                                                H_L_FG_share_min=[c['flue_gas_loss_at_min_heat'] for p in range(0, periods)],
+                                                variable_costs = [c['variable_costs_in']])},
+                                                #nonconvex = NonConvex(startup_costs=750))},
                                             electrical_output={busd[c['to_el']]: solph.Flow(
-                                                P_max_woDH=[c['power max'] for p in range(0, periods)],
-                                                P_min_woDH=[c['power min'] for p in range(0, periods)],
-                                                Eta_el_max_woDH=[c['el efficiency max'] for p in range(0, periods)],
-                                                Eta_el_min_woDH=[c['el efficiency min'] for p in range(0, periods)])},
+                                                P_max_woDH=[c['el_capacity_max'] for p in range(0, periods)],
+                                                P_min_woDH=[c['el_capacity_min'] for p in range(0, periods)],
+                                                Eta_el_max_woDH=[c['el_conv'] for p in range(0, periods)],
+                                                Eta_el_min_woDH=[c['el_conv_min'] for p in range(0, periods)],
+                                                variable_costs = [c['variable_costs_out']])},
                                             heat_output={busd[c['to_th']]: solph.Flow(
                                                 Q_CW_min=[0 for p in range(0, periods)])},
                                             Beta=[0 for p in range(0, periods)],
-                                            fixed_costs=c['fixed costs'],
                                             back_pressure=c['back_pressure'])
             )
+
+    # Create a CHP plant objects from 'chp_trans' tab; using transformer component
+    for i, f in nd['chp_trans'].iterrows():
+        if f['active']:
+            # set static inflow values
+            inflow_args = {'variable_costs': f['variable_costs_in'],
+                          # 'nominal_value': f['gas_capacity']
+                           }
+            outflow_args = {'nominal_value': f['el_capacity_max'],
+                            'variable_costs': f['variable_costs_out'],
+                            # 'min': f['el_capacity_min']
+                            }
+            outflow_args_th = {'nominal_value': f['heat_capacity_max'],
+                               # 'min': f['heat_capacity_min']
+                               }
+            # get time series for inflow of transformer
+            # Parameters pre-set in outflow_args will be overwritten if a time series is available
+            for col in nd['timeseries'].columns.values:
+                if col.split('.')[0] == f['label']:
+                    outflow_args_el[col.split('.')[1]] = nd['timeseries'][col][datetime_index]
+                    # inflow_args[col.split('.')[1]] = nd['timeseries'][col][datetime_index]
+            # create
+
+
+            nodes.append(
+                solph.Transformer(
+                    label=f['label'],
+                    inputs={busd[f['from']]: solph.Flow(**inflow_args)},
+                    outputs={busd[f['to_el']]: solph.Flow(**outflow_args),
+                            busd[f['to_th']]: solph.Flow(**outflow_args_th)},
+                    conversion_factors={busd[f['to_el']]: f['el_conv'],
+                                        busd[f['to_th']]: f['heat_conv']})
+                )
+            print(f['label'])
+            print("transformer inflow args")
+            print(inflow_args)
+            print("transformer outflow args")
+            print(outflow_args)
 
     return nodes
 
@@ -237,11 +318,10 @@ def create_model(cfg):
     nd = oemof_nodes_from_excel(
         scenario_file=os.path.join(cfg['data_path'],
                                    cfg['scenario_file']),
-        data_file=os.path.join(get_data_root_dir(),
-                               config.get('user_dirs', 'data_dir'),
-                               cfg['data_file'])
+#        data_file=os.path.join(get_data_root_dir(),
+#                               config.get('user_dirs', 'data_dir'),
+#                               cfg['data_file'])
         )
-
     # check if selected timerange in cfg is part of data's timerange
     if any([parse(_) not in nd['timeseries'].index for _ in [cfg['date_from'], cfg['date_to']]]):
         msg = 'Selected timerange is not included in data\'s timerange!'
@@ -259,7 +339,6 @@ def create_model(cfg):
     for n in esys.nodes:
         oobj = str(type(n)).replace("<class 'oemof.solph.", "").replace("'>", "")
         print(oobj + ':', n.label)
-
     return esys
 
 
@@ -280,10 +359,13 @@ def simulate(esys, solver='cbc', verbose=True):
 
     # Create problem
     om = solph.Model(esys)
+    #print(om)
 
     # solve it
     om.solve(solver=solver,
              solve_kwargs={'tee': verbose,
-                           'keepfiles': True})
-
+                           'keepfiles': False})
+        # write LP file
+    filename = os.path.join(os.path.dirname(__file__), 'KWUM.lp')
+    om.write(filename, io_options={'symbolic_solver_labels': True})
     return om.results()

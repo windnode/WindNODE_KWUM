@@ -4,18 +4,17 @@ Welcome to WindNODE_KWUM's documentation!
 WindNODE KWUM is an energy system model for the Uckermark region.
 
 .. toctree::
-   :maxdepth: 2
+    :maxdepth: 2
 
-   start_page
-   whatsnew
-   quickstart
-   scenarios
-   usage_details
-   features_in_detail
-   data_sources
-   dev_notes
-   references
-   api
+    start_page
+    quickstart
+    model_description
+    scenarios
+    usage_details
+    data_sources
+    economic_co2_ana
+    references
+    api
 
 
 
