@@ -67,7 +67,7 @@ def collect_specific_results(mainfolder, subfolders, kwum_path):
     #collection_sheet_1 = calculate_all_path + '!_' + sheet_1 + '_' + sensi_name + '.xlsx'
     #shutil.copy(master_sheet_1, collection_sheet_1)
 
-    master_sheet_2 = kwum_path + 'Auswertung/MASTER_' + sheet_2 + '.xlsx'
+    master_sheet_2 = kwum_path + 'Scenarios/MASTER_' + sheet_2 + '.xlsx'
     collection_sheet_2 = calculate_all_path + '!_' + sheet_2 + '_' + sensi_name + '.xlsx'
     shutil.copy(master_sheet_2, collection_sheet_2)
 

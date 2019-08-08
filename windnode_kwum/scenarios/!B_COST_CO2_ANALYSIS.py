@@ -12,14 +12,14 @@ print("READ RESULTS SENSI")
 # define main folder for calculation of several sensitivity analyses
 
 kwum_path = os.getcwd().replace('WindNODE_KWUM\windnode_kwum\scenarios','')
-main_folder_path = kwum_path + 'Auswertung\Sensi_Analysen_oemof/'
+main_folder_path = kwum_path + 'Scenarios\Scenario_folders/'
 subfolders = os.listdir(main_folder_path)
 
 # calculate every sensi analysis for each folder
 for folder in subfolders:
 
     calculate_all_path = main_folder_path + folder + '/'
-    szenario_workbook_path = kwum_path + 'Auswertung\scenario_data.xlsx'
+    szenario_workbook_path = kwum_path + 'Scenarios\scenario_data.xlsx'
     mainfolder = main_folder_path
     subfolders = folder
 
@@ -51,14 +51,7 @@ for folder in subfolders:
 
     print(filelist)
 
-    '''
-    sensi_name = folder
-    calculate_all_path = r'C:/Users/master/Google Drive/Masterarbeit/Auswertung/Sensi_Analysen_berechnen/' + sensi_name + '/'
-    filelist = [f for f in os.listdir(calculate_all_path + 'results/') if f.startswith('20') and f.endswith("_timeseries.xlsx")]
 
-    print(filelist)
-
-    '''
     excel = DispatchEx('Excel.Application')
     scenario_workbook_file = excel.Workbooks.Open(szenario_workbook_path)
     sensi_param_file = excel.Workbooks.Open(calculate_all_path + 'sensi_param_' + folder + '.xlsx')
@@ -248,9 +241,9 @@ for folder in subfolders:
         # calculation_master_file = [f for f in os.listdir(calculate_all_path) if
         #                           f.startswith('MASTER') and f.endswith("results.xlsx")]
         # calculation_master_path = calculate_all_path + calculation_master_file[0]
-        calculation_master_path = kwum_path + 'Auswertung/MASTER_cost_calculation.xlsx'
+        calculation_master_path = kwum_path + 'Scenarios/MASTER_cost_calculation.xlsx'
 
-        diagram_master_path = kwum_path + 'Auswertung/MASTER_diagrams.xlsx'
+        diagram_master_path = kwum_path + 'Scenarios/MASTER_diagrams.xlsx'
         diagram_file_path = calculate_all_path + 'results/' + f + '_diagrams.xlsx'
         calculation_file_path = calculate_all_path + 'results/' + f + '_results.xlsx'
         print(calculation_master_path)

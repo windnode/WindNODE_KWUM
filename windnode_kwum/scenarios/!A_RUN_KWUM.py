@@ -32,7 +32,7 @@ logger = setup_logger()
 
 # define main folder for calculation of several sensitivity analyses
 kwum_path = os.getcwd().replace('WindNODE_KWUM\windnode_kwum\scenarios','')
-main_folder_path = kwum_path + 'Auswertung\Sensi_Analysen_oemof/'
+main_folder_path = kwum_path + 'Scenarios\Scenario_folders/'
 subfolders = os.listdir(main_folder_path)
 
 
@@ -42,7 +42,7 @@ print(subfolders)
 # calculate every sensi analysis for each folder
 for folder in subfolders:
     calculate_all_path = main_folder_path + folder + '/'
-    szenario_workbook_path = kwum_path + 'Auswertung\scenario_data.xlsx'
+    szenario_workbook_path = kwum_path + 'Scenarios\scenario_data.xlsx'
 
 
     #create_sensi_scenario_files(mainfolder=main_folder_path, subfolder=folder)
@@ -88,7 +88,7 @@ for folder in subfolders:
         cfg = {
             'data_path': os.path.join(os.path.dirname(calculate_all_path)),
             'date_from': '2016-01-01 00:00:00',
-            'date_to': '2016-12-31 23:00:00',
+            'date_to': '2016-01-31 23:00:00',
             'freq': '60min',
             'scenario_file': f + '.xlsx',
             #'data_file': 'reference_scenario_curtailment_data_' + year + '_2.xlsx',
