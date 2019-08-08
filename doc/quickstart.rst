@@ -3,13 +3,17 @@
 Quickstart
 ==========
 
-**1. cloning the KWUM repository of Git-hub**
+**1. Cloning the KWUM repository of Git-hub**
 
 - Link: https://github.com/windnode/WindNODE_KWUM/tree/dev
 
-**2. download folder "Scenario_folder" and "WindNODE_KWUM_data" and insert a layer above the project folder**
+**2. Download Scenario folders and integrate them in the KWUM-Project**
 
-Link: https://next.rl-institut.de/s/6BZRiNjKjE2YkwD
+Download the folders from the following link:
+
+- Link: https://next.rl-institut.de/s/6BZRiNjKjE2YkwD
+
+Integrate the folders one level above the KWUM project.
 
 In each of the 27 scenario folders there is a "sensi_param_..." file in which the scenario variations can be selected. Here the capacities of the FlexOptions can be varied.
 
