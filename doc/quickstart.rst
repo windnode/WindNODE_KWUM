@@ -15,7 +15,7 @@ Download the folders from the following link:
 
 Integrate the folders one level above the KWUM project.
 
-In each of the 27 scenario folders there is a "sensi_param_..." file in which the scenario variations can be selected. Here the capacities of the FlexOptions can be varied.
+In each of the 27 scenario folders there is a file that starts with "sensi_param" in which the scenario variations can be selected. Here the capacities of the FlexOptions can be varied.
 
 **3. calculate scenario files in oemof**
 
