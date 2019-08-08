@@ -53,9 +53,9 @@ def collect_specific_results(mainfolder, subfolders, kwum_path):
     print(results_filelist)
 
 
-    sheet_1 = 'Stromerzeugung'
-    sheet_2 = 'Wärmenetze'
-    sheet_3 = 'Anlagen'
+    #sheet_1 = 'Stromerzeugung'
+    sheet_2 = 'results_collection'
+    #sheet_3 = 'Anlagen'
 
     #writer_1 = pd.ExcelWriter(calculate_all_path + '!_' + sheet_1 + '_' + sensi_name + '.xlsx')
     #writer_2 = pd.ExcelWriter(calculate_all_path + '!_' + sheet_2 + '_' + sensi_name + '.xlsx')
