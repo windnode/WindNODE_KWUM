@@ -10,7 +10,6 @@ WindNODE KWUM is an energy system model for the Uckermark region.
     quickstart
     model_description
     scenarios
-    usage_details
     data_sources
     economic_co2_ana
     references
