@@ -5,6 +5,8 @@ Quickstart
 
 **1. cloning the KWUM repository of Git-hub**
 
+- Link: https://github.com/windnode/WindNODE_KWUM/tree/dev
+
 **2. download folder "Scenario_folder" and "WindNODE_KWUM_data" and insert a layer above the project folder**
 
 Link: https://next.rl-institut.de/s/6BZRiNjKjE2YkwD
